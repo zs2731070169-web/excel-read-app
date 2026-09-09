@@ -1,5 +1,10 @@
 # Tasks: multi-file-library
 
+## 7. 复制格式精修（真机反馈）
+
+- [ ] 7.1 长按自由复制完整性：`ResultRow.vue` 复制按钮 `user-select:none`（选择排除按钮文字）、行内字段间插入真实空格（span 间文本节点）、行 div 保持块级换行；验证真机长按跨行复制到外部笔记：无按钮字样、字段单空格单行、行间换行
+- [ ] 7.2 「复制当前列表」按钮：`ResultList.vue` 底部操作，复制 displayRows 全部行（每行「名称 条形码 货架号 价格」单空格、行间 \n，复用整行复制的 clipboard+fallback 链路），成功提示含行数；空列表时隐藏；真机验证搜索/浏览两模式复制与外部粘贴格式
+
 ## 6. 真机反馈修复（实现期回归）
 
 - [x] 6.1 修复搜索框双清空按钮：`SearchBar.vue` 隐藏 WebView 原生 `::-webkit-search-cancel-button`（与 Vant clearable 叠加出现），验证真机仅一个 ✕
