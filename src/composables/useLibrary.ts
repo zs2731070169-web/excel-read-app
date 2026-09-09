@@ -70,7 +70,7 @@ function getWorker(): Worker {
   return worker
 }
 
-/** 解析完成：入库（同名覆盖）并自动打开 */
+/** 解析完成：入库（同名覆盖），停留文件库页（spec: 导入不自动进入工作簿） */
 async function onParsed(workbook: WorkbookData, fileSize: number): Promise<void> {
   const id = fileIdentity(workbook.fileName, fileSize)
   const existing = await getFile(id)
@@ -88,7 +88,6 @@ async function onParsed(workbook: WorkbookData, fileSize: number): Promise<void>
   state.importPhase = 'idle'
   state.importError = null
   await refreshFiles()
-  await openFile(id)
 }
 
 /** 刷新文件列表（导入/删除后调用） */
