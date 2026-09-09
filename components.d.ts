@@ -12,35 +12,39 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    FileCard: typeof import('./src/components/FileCard.vue')['default']
+    FileLibrary: typeof import('./src/components/FileLibrary.vue')['default']
     ResultList: typeof import('./src/components/ResultList.vue')['default']
     ResultRow: typeof import('./src/components/ResultRow.vue')['default']
     SearchBar: typeof import('./src/components/SearchBar.vue')['default']
     TopBar: typeof import('./src/components/TopBar.vue')['default']
     VanButton: typeof import('vant/es')['Button']
+    VanCheckbox: typeof import('vant/es')['Checkbox']
     VanDialog: typeof import('vant/es')['Dialog']
     VanDropdownItem: typeof import('vant/es')['DropdownItem']
     VanDropdownMenu: typeof import('vant/es')['DropdownMenu']
     VanEmpty: typeof import('vant/es')['Empty']
     VanField: typeof import('vant/es')['Field']
     VanIcon: typeof import('vant/es')['Icon']
-    VanLoading: typeof import('vant/es')['Loading']
     VanNotify: typeof import('vant/es')['Notify']
   }
 }
 
 // For TSX support
 declare global {
+  const FileCard: typeof import('./src/components/FileCard.vue')['default']
+  const FileLibrary: typeof import('./src/components/FileLibrary.vue')['default']
   const ResultList: typeof import('./src/components/ResultList.vue')['default']
   const ResultRow: typeof import('./src/components/ResultRow.vue')['default']
   const SearchBar: typeof import('./src/components/SearchBar.vue')['default']
   const TopBar: typeof import('./src/components/TopBar.vue')['default']
   const VanButton: typeof import('vant/es')['Button']
+  const VanCheckbox: typeof import('vant/es')['Checkbox']
   const VanDialog: typeof import('vant/es')['Dialog']
   const VanDropdownItem: typeof import('vant/es')['DropdownItem']
   const VanDropdownMenu: typeof import('vant/es')['DropdownMenu']
   const VanEmpty: typeof import('vant/es')['Empty']
   const VanField: typeof import('vant/es')['Field']
   const VanIcon: typeof import('vant/es')['Icon']
-  const VanLoading: typeof import('vant/es')['Loading']
   const VanNotify: typeof import('vant/es')['Notify']
 }

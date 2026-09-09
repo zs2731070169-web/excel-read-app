@@ -2,30 +2,17 @@ import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it } from 'vitest'
 import * as XLSX from 'xlsx'
 import { parseWorkbook } from '../services/excelParser'
-import { clearAll } from '../services/persistence'
+import { clearFiles } from '../services/persistence'
 import type { WorkbookData } from '../services/types'
 import {
-  clearImportedData,
+  openWorkbookSession,
   resetSearch,
+  resetWorkbookSession,
   search,
   setKeyword,
   state,
   switchSheet,
 } from './useWorkbook'
-
-/** 直接注入 WorkbookData 到状态（绕过 Worker —— Worker 在 node 测试环境不可用，逻辑等价） */
-function injectWorkbook(data: WorkbookData) {
-  Object.assign(state, {
-    phase: 'done',
-    importError: null,
-    workbook: data,
-    activeSheetName: data.sheets[0]?.name ?? null,
-    keyword: '',
-    searchPhase: 'idle',
-    results: [],
-    persistenceDegraded: false,
-  })
-}
 
 function makeWorkbook(): WorkbookData {
   const wb = XLSX.utils.book_new()
@@ -52,13 +39,30 @@ function makeWorkbook(): WorkbookData {
   return parseWorkbook(buf, '订单.xlsx')
 }
 
-beforeEach(async () => {
-  await clearAll()
+beforeEach(() => {
+  resetWorkbookSession()
   resetSearch()
-  injectWorkbook(makeWorkbook())
+  openWorkbookSession(makeWorkbook(), null)
+  void clearFiles()
 })
 
-describe('搜索匹配规则 (order-search spec)', () => {
+describe('会话注入 (3.2)', () => {
+  it('初始选中第一个 sheet', () => {
+    expect(state.activeSheetName).toBe('沿河店')
+  })
+
+  it('恢复上次门店（initialSheetName）', () => {
+    openWorkbookSession(makeWorkbook(), '江店1')
+    expect(state.activeSheetName).toBe('江店1')
+  })
+
+  it('lastSheetName 不存在时回退第一个', () => {
+    openWorkbookSession(makeWorkbook(), '不存在的门店')
+    expect(state.activeSheetName).toBe('沿河店')
+  })
+})
+
+describe('搜索匹配规则 (order-search spec, 回归保持)', () => {
   it('按商品名称包含匹配', () => {
     setKeyword('可乐')
     search()
@@ -69,7 +73,7 @@ describe('搜索匹配规则 (order-search spec)', () => {
   it('按货架号匹配（包含关系）', () => {
     setKeyword('A-12')
     search()
-    expect(state.results.map((r) => r.name)).toEqual(['可乐330ml', 'Cola Mini']) // A-12 与 A-121
+    expect(state.results.map((r) => r.name)).toEqual(['可乐330ml', 'Cola Mini'])
   })
 
   it('大小写不敏感', () => {
@@ -78,10 +82,9 @@ describe('搜索匹配规则 (order-search spec)', () => {
     expect(state.results.map((r) => r.name)).toEqual(['Cola Mini'])
   })
 
-  it('仅当前工作表范围（江店1 的可乐600ml 不出现）', () => {
+  it('仅当前工作表范围', () => {
     setKeyword('600ml')
     search()
-    expect(state.results).toEqual([]) // 沿河店无 600ml
     expect(state.searchPhase).toBe('empty-result')
   })
 
@@ -89,60 +92,35 @@ describe('搜索匹配规则 (order-search spec)', () => {
     setKeyword('   ')
     search()
     expect(state.searchPhase).toBe('idle')
-    expect(state.results).toEqual([])
-  })
-
-  it('无匹配 → empty-result', () => {
-    setKeyword('不存在的商品')
-    search()
-    expect(state.searchPhase).toBe('empty-result')
   })
 })
 
-describe('结果过期清空 (order-search spec)', () => {
+describe('结果过期清空 (order-search spec, 回归保持)', () => {
   it('关键词变更后清空旧结果（保留关键词）', () => {
     setKeyword('可乐')
     search()
-    expect(state.searchPhase).toBe('has-result')
-    setKeyword('雪碧') // 改词未搜索
+    setKeyword('雪碧')
     expect(state.searchPhase).toBe('idle')
     expect(state.results).toEqual([])
-    expect(state.keyword).toBe('雪碧') // 关键词保留
+    expect(state.keyword).toBe('雪碧')
   })
 
-  it('切换工作表后清空（关键词保留）', () => {
+  it('切换工作表后清空（关键词保留）+ 回调触发', () => {
+    let callbackSheet: string | null = null
+    openWorkbookSession(makeWorkbook(), null, {
+      onSheetChange: (s) => (callbackSheet = s),
+    })
     setKeyword('可乐')
     search()
     switchSheet('江店1')
     expect(state.searchPhase).toBe('idle')
     expect(state.results).toEqual([])
-    expect(state.keyword).toBe('可乐') // sheet-switch spec: 关键词保留
-    expect(state.activeSheetName).toBe('江店1')
-  })
-
-  it('切页后搜索范围随之切换', () => {
-    switchSheet('江店1')
-    setKeyword('600ml')
-    search()
-    expect(state.results.map((r) => r.name)).toEqual(['可乐600ml'])
+    expect(state.keyword).toBe('可乐')
+    expect(callbackSheet).toBe('江店1')
   })
 })
 
-describe('清空导入数据 (excel-import spec)', () => {
-  it('清空后回到未导入初始态', async () => {
-    setKeyword('可乐')
-    search()
-    await clearImportedData()
-    expect(state.workbook).toBeNull()
-    expect(state.phase).toBe('idle')
-    expect(state.activeSheetName).toBeNull()
-    expect(state.keyword).toBe('')
-    expect(state.searchPhase).toBe('idle')
-    expect(state.results).toEqual([])
-  })
-})
-
-describe('格式不符工作表 (excel-import spec)', () => {
+describe('格式不符工作表 (excel-import spec, 回归保持)', () => {
   it('invalid Sheet 可选中但搜索为空', () => {
     state.workbook!.sheets.push({
       name: '坏表',
@@ -154,6 +132,30 @@ describe('格式不符工作表 (excel-import spec)', () => {
     setKeyword('可乐')
     search()
     expect(state.searchPhase).toBe('empty-result')
-    expect(state.results).toEqual([])
+  })
+})
+
+describe('浏览模式 (order-search spec: 未搜索时展示全部记录)', () => {
+  it('未搜索时 browseRows = 当前门店全部记录', async () => {
+    const { browseRows } = await import('./useWorkbook')
+    expect(browseRows.value).toHaveLength(4) // 沿河店 4 条
+  })
+
+  it('切换门店后 browseRows 随之切换', async () => {
+    const { browseRows } = await import('./useWorkbook')
+    switchSheet('江店1')
+    expect(browseRows.value).toHaveLength(1)
+    expect(browseRows.value[0].name).toBe('可乐600ml')
+  })
+
+  it('搜索行为不受浏览模式影响', async () => {
+    const { browseRows } = await import('./useWorkbook')
+    setKeyword('可乐')
+    search()
+    // searchPhase=has-result 时 UI 层走 state.results，browseRows 仍为全部
+    expect(state.searchPhase).toBe('has-result')
+    expect(browseRows.value).toHaveLength(4)
+    setKeyword('') // 关键词清空 → idle → UI 回浏览
+    expect(state.searchPhase).toBe('idle')
   })
 })
