@@ -8,8 +8,8 @@
 
 ## 2. 原生文件选择桥
 
-- [ ] 2.1 实现 `ExcelPickerPlugin.java`（~60 行）：ACTION_OPEN_DOCUMENT + EXTRA_MIME_TYPES（xlsx/xls MIME）+ CATEGORY_OPENABLE，startActivityForResult → ContentResolver 读流 → 回传 {fileName, base64}；MainActivity 注册插件，验证 `assembleDebug` 编译通过
-- [ ] 2.2 JS 侧封装 `services/excelPicker.ts`：`pickExcelFile()` → Promise<{fileName, arrayBuffer}>（base64 解码，Uint8Array 直转，无拷贝放大）；非 Excel MIME 强选时按扩展名+魔数预校验拒绝并提示，验证单测：非法类型返回明确错误
+- [x] 2.1 实现 `ExcelPickerPlugin.java`（~60 行）：ACTION_OPEN_DOCUMENT + EXTRA_MIME_TYPES（xlsx/xls MIME）+ CATEGORY_OPENABLE，startActivityForResult → ContentResolver 读流 → 回传 {fileName, base64}；MainActivity 注册插件，验证 `assembleDebug` 编译通过
+- [x] 2.2 JS 侧封装 `services/excelPicker.ts`：`pickExcelFile()` → Promise<{fileName, arrayBuffer}>（base64 解码，Uint8Array 直转，无拷贝放大）；非 Excel MIME 强选时按扩展名+魔数预校验拒绝并提示，验证单测：非法类型返回明确错误
 - [ ] 2.3 真机验证（debug 包）：点导入 → 系统选择器仅显示 Excel 文件；从下载目录选取 .xlsx 与 .xls 均能取回文件名与内容
 
 ## 3. 状态机分层
