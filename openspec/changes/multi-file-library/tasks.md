@@ -14,7 +14,7 @@
 
 ## 3. 状态机分层
 
-- [ ] 3.1 新建 `composables/useLibrary.ts`：view('library'|'workbook')/files 列表/openFile/closeWorkbook/importFile(接 Worker 解析→putFile→自动打开)/deleteFile/clearAll；启动时 listFiles 恢复，验证单测：导入→列表更新→打开→关闭→删除→空态 全链路状态流转
+- [ ] 3.1 新建 `composables/useLibrary.ts`：view('library'|'workbook')/files 列表/openFile/closeWorkbook/importFile(接 Worker 解析→putFile→自动打开)/deleteFile；启动时 listFiles 恢复，验证单测：导入→列表更新→打开→关闭→删除→空态 全链路状态流转
 - [ ] 3.2 改造 `useWorkbook.ts`：由 openFile(fileId, workbookData, lastSheetName) 注入会话（选中 sheet 恢复 lastSheetName），删除全局 restore/clearImportedData（职责移至 useLibrary）；现有 search/switchSheet/setKeyword 逻辑与测试保持通过（适配注入式初始化）
 - [ ] 3.3 逐文件删除联动：删除当前打开文件时自动 closeWorkbook；同名重导覆盖（put 同 id，firstImportedAt 保留、importedAt 更新），验证单测覆盖两个场景
 
