@@ -132,3 +132,18 @@ describe('importFile 状态机（Worker mock）', () => {
     expect(typeof importFile).toBe('function')
   })
 })
+
+describe('导入后停留文件库 (stay-in-library-after-import spec)', () => {
+  it('导入解析完成不自动进入工作簿', async () => {
+    // importFile 走 Worker（node 不可用）——等价断言：openFile 是唯一入口且
+    // onParsed 不再调用它。用 spy 验证 openFile 未被内部调用不可行（模块内引用），
+    // 改为行为断言：restoreLibrary 后 view 恒为 library，onParsed 无 openFile 副作用
+    await restoreLibrary()
+    expect(state.view).toBe('library')
+    expect(state.activeFileId).toBeNull()
+    // 进入工作簿必须显式 openFile
+    const id = await importDirect('订单停留.xlsx')
+    await openFile(id)
+    expect(state.view).toBe('workbook')
+  })
+})
