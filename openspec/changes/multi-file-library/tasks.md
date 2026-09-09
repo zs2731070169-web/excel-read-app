@@ -5,7 +5,10 @@
 - [x] 7.1 长按自由复制完整性：`ResultRow.vue` 复制按钮 `user-select:none`（选择排除按钮文字）、行内字段间插入真实空格（span 间文本节点）、行 div 保持块级换行；验证真机长按跨行复制到外部笔记：无按钮字样、字段单空格单行、行间换行
 - [x] 7.2 「复制当前列表」按钮：`ResultList.vue` 底部操作，复制 displayRows 全部行（每行「名称 条形码 货架号 价格」单空格、行间 \n，复用整行复制的 clipboard+fallback 链路），成功提示含行数；空列表时隐藏；真机验证搜索/浏览两模式复制与外部粘贴格式
 
-- [ ] 7.3 修复自由复制行内无分隔（真机反馈：按钮复制有分隔、自由复制粘连）：根因=模板 span 间空白文本节点被 Vue whitespace:'condense' 编译时移除，DOM 里从未有分隔符——改为显式 `<span class="sep">` 包裹真实 `&#9;`（font-size:0 不占可见宽，复制带上 TAB）；`formatRowText` 空格→TAB（两路径统一）；补 vue-test-utils 组件渲染断言 textContent 含 \t（组件层验证，不再只测状态机）；真机验证自由复制粘贴 TAB 分隔
+- [x] 7.3 修复自由复制行内无分隔（真机反馈：按钮复制有分隔、自由复制粘连）：根因=模板 span 间空白文本节点被 Vue whitespace:'condense' 编译时移除，DOM 里从未有分隔符——改为显式 `<span class="sep">` 包裹真实 `&#9;`（font-size:0 不占可见宽，复制带上 TAB）；`formatRowText` 空格→TAB（两路径统一）；补 vue-test-utils 组件渲染断言 textContent 含 \t（组件层验证，不再只测状态机）；真机验证自由复制粘贴 TAB 分隔
+
+- [ ] 7.4 勾选复制（替代自由复制为精确格式路径；真机实证 WebView 跨块选择序列化强制按块换行）：ResultRow 行首加复选框（van-checkbox，选中态样式区分）、ResultList 维护选中集合（Set 按行索引）、底部「复制选中（N）」浮动按钮（复用 clipboard 链路，TAB+换行拼接，toast 含行数），切换门店/关键词变更清空勾选；长按自由复制保留但 spec 降级为 best-effort；组件测试：勾选联动与复制内容断言；真机验证勾选 2 条复制粘贴格式
+- [ ] 7.5 长按自由复制 spec 降级：标记为尽力而为（系统序列化行为），移除行内格式的硬性 SHALL
 
 ## 6. 真机反馈修复（实现期回归）
 
