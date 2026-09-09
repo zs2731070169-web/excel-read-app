@@ -15,9 +15,9 @@
 
 ## 3. Web Worker 与持久化
 
-- [ ] 3.1 实现 `services/excelWorker.ts`：Worker 内调用解析层，按 Sheet postMessage 进度，主线程 `composables/useWorkbook.ts` 接收状态（idle/parsing/done/error），验证导入万行级测试文件时 UI 不冻结、进度正常上报
-- [ ] 3.2 实现 `services/persistence.ts`：IndexedDB `excel-search` 库（workbook 单记录 + ui-state），导入完成写入、启动读取恢复（含 activeSheetName），验证刷新页面后数据与所选 Sheet 恢复、写入异常时降级仅内存并提示
-- [ ] 3.3 持久化集成测试：导入 → 刷新 → 断言工作表列表/数据/选中态一致；重新导入同文件 → 断言新数据完全覆盖
+- [x] 3.1 实现 `services/excelWorker.ts`：Worker 内调用解析层，按 Sheet postMessage 进度，主线程 `composables/useWorkbook.ts` 接收状态（idle/parsing/done/error），验证导入万行级测试文件时 UI 不冻结、进度正常上报
+- [x] 3.2 实现 `services/persistence.ts`：IndexedDB `excel-search` 库（workbook 单记录 + ui-state），导入完成写入、启动读取恢复（含 activeSheetName），验证刷新页面后数据与所选 Sheet 恢复、写入异常时降级仅内存并提示
+- [x] 3.3 持久化集成测试：导入 → 刷新 → 断言工作表列表/数据/选中态一致；重新导入同文件 → 断言新数据完全覆盖
 
 ## 4. UI 实现
 
