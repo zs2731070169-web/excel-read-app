@@ -1,9 +1,8 @@
 import 'fake-indexeddb/auto'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import * as XLSX from 'xlsx'
 import { parseWorkbook } from '../services/excelParser'
-import { clearFiles, listFiles } from '../services/persistence'
-import type { WorkbookData } from '../services/types'
+import { clearFiles } from '../services/persistence'
 import { state as workbookState, switchSheet } from './useWorkbook'
 import {
   closeWorkbook,

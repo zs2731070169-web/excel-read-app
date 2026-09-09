@@ -30,11 +30,7 @@ const { state, activeSheet } = useWorkbook()
 
     <!-- 空态二：未搜索（含关键词变更后的过期提示） -->
     <div v-else class="placeholder">
-      <template v-if="state.workbook === null">
-        <p>尚未导入文档</p>
-        <p class="hint">点击右上角「Excel导入」开始使用</p>
-      </template>
-      <template v-else-if="activeSheet && !activeSheet.valid">
+      <template v-if="activeSheet && !activeSheet.valid">
         <p>当前工作表格式不符</p>
         <p class="hint">缺少列：{{ activeSheet.missingColumns?.join('、') }}，请检查文档或切换其他工作表</p>
       </template>

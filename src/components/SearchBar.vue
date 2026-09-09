@@ -4,7 +4,8 @@ import { useWorkbook } from '../composables/useWorkbook'
 
 const { state, setKeyword, search } = useWorkbook()
 
-const disabled = state.workbook === null && state.phase !== 'parsing'
+/** 仅在会话中可搜索（本组件只在 workbook 视图渲染） */
+const disabled = state.workbook === null
 
 /** 搜索触发：仅按钮/IME（order-search spec: 方案 B） */
 function onSearch() {

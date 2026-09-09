@@ -12,6 +12,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    FileCard: typeof import('./src/components/FileCard.vue')['default']
+    FileLibrary: typeof import('./src/components/FileLibrary.vue')['default']
     ResultList: typeof import('./src/components/ResultList.vue')['default']
     ResultRow: typeof import('./src/components/ResultRow.vue')['default']
     SearchBar: typeof import('./src/components/SearchBar.vue')['default']
@@ -23,13 +25,14 @@ declare module 'vue' {
     VanEmpty: typeof import('vant/es')['Empty']
     VanField: typeof import('vant/es')['Field']
     VanIcon: typeof import('vant/es')['Icon']
-    VanLoading: typeof import('vant/es')['Loading']
     VanNotify: typeof import('vant/es')['Notify']
   }
 }
 
 // For TSX support
 declare global {
+  const FileCard: typeof import('./src/components/FileCard.vue')['default']
+  const FileLibrary: typeof import('./src/components/FileLibrary.vue')['default']
   const ResultList: typeof import('./src/components/ResultList.vue')['default']
   const ResultRow: typeof import('./src/components/ResultRow.vue')['default']
   const SearchBar: typeof import('./src/components/SearchBar.vue')['default']
@@ -41,6 +44,5 @@ declare global {
   const VanEmpty: typeof import('vant/es')['Empty']
   const VanField: typeof import('vant/es')['Field']
   const VanIcon: typeof import('vant/es')['Icon']
-  const VanLoading: typeof import('vant/es')['Loading']
   const VanNotify: typeof import('vant/es')['Notify']
 }

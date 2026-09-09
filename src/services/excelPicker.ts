@@ -31,6 +31,13 @@ function base64ToBytes(base64: string): Uint8Array {
   return bytes
 }
 
+/** bytes.buffer 是 ArrayBufferLike（可能声明为 SharedArrayBuffer）——显式拷贝为精确长度的 ArrayBuffer */
+function toStandaloneArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const copy = new ArrayBuffer(bytes.byteLength)
+  new Uint8Array(copy).set(bytes)
+  return copy
+}
+
 /**
  * 唤起系统文件选择器（仅 Excel 类型）。
  * 返回 null = 用户取消；文件非 Excel 抛错（预校验，提示层捕获）。
@@ -43,7 +50,7 @@ export async function pickExcelFile(): Promise<PickedFile | null> {
     if (!looksLikeExcel(bytes)) {
       throw new Error('所选文件不是 Excel 文件（仅支持 .xlsx / .xls）')
     }
-    return { fileName: result.fileName, arrayBuffer: bytes.buffer }
+    return { fileName: result.fileName, arrayBuffer: toStandaloneArrayBuffer(bytes) }
   }
 
   // Web 预览降级：input[type=file]
