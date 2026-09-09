@@ -36,6 +36,6 @@
 
 ## 6. 构建交付
 
-- [ ] 6.1 生成 keystore 并配置 `android/app/build.gradle` 签名，`gradle assembleRelease` 出签名 APK，验证 `apksigner verify` 通过
-- [ ] 6.2 编写 README：构建步骤（install/build/sync/assemble）、代理注意事项、密钥保管说明，验证新环境按文档可复现构建
+- [x] 6.1 生成 keystore（RSA 2048 / 25 年）并配置 `android/app/build.gradle` 签名（keystore.properties 不入库，storeFile 相对 rootProject 解析），`gradlew assembleRelease` 出 3.4MB 签名 APK，`apksigner verify` 通过（SHA-256 指纹 dc8cd0a6…）
+- [x] 6.2 编写 README：功能对照、开发/构建步骤、代理注意事项、密钥保管与交付必读、真机验收清单
 - [ ] 6.3 端到端验收：真机安装签名 APK，按四个能力 spec 全场景走查（导入/切页/搜索/复制/重启恢复/格式不符提示），结果记录回本 change 并对照 openspec validate --strict 通过
