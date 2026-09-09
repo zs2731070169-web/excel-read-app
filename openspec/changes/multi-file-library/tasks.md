@@ -10,7 +10,7 @@
 
 - [x] 2.1 实现 `ExcelPickerPlugin.java`（~60 行）：ACTION_OPEN_DOCUMENT + EXTRA_MIME_TYPES（xlsx/xls MIME）+ CATEGORY_OPENABLE，startActivityForResult → ContentResolver 读流 → 回传 {fileName, base64}；MainActivity 注册插件，验证 `assembleDebug` 编译通过
 - [x] 2.2 JS 侧封装 `services/excelPicker.ts`：`pickExcelFile()` → Promise<{fileName, arrayBuffer}>（base64 解码，Uint8Array 直转，无拷贝放大）；非 Excel MIME 强选时按扩展名+魔数预校验拒绝并提示，验证单测：非法类型返回明确错误
-- [ ] 2.3 真机验证（debug 包）：点导入 → 系统选择器仅显示 Excel 文件；从下载目录选取 .xlsx 与 .xls 均能取回文件名与内容
+- [x] 2.3 真机验证（debug 包）：点导入 → 系统选择器仅显示 Excel 文件；从下载目录选取 .xlsx 与 .xls 均能取回文件名与内容（真机 2NSDU20415033958 验证：微信 Download/WeiXin 目录 xlsx 选取成功）
 
 ## 3. 状态机分层
 
@@ -23,9 +23,9 @@
 - [x] 4.1 新建 `components/FileLibrary.vue` + `FileCard.vue`：列表（Excel 图标/文件名/导入日期）+ **左滑展开/右滑收回红色删除按钮**（跟手 translateX + 平滑落位、同时仅一项展开、点击他处收回）、空态引导、顶栏（导入按钮）、删除确认弹窗（无全局清空入口），验证：滑动交互流畅性真机走查 + file-library spec 全场景
 - [x] 4.2 改造 `TopBar.vue` 按视图渲染：工作簿页=返回入口+sheet 下拉（无导入按钮）；导入按钮触发 excelPicker（替换 input[type=file]），验证两视图顶栏内容正确切换
 - [x] 4.3 改造 `App.vue`：view 切换文件库页/工作簿页（现有 SearchBar/ResultList 仅工作簿页渲染），导入中 loading 与失败 toast 在两视图均可用，验证：启动落文件库、进入工作簿、返回恢复列表
-- [ ] 4.4 返回键两层化：`main.ts` backButton 按 view 分派（workbook→closeWorkbook，library→exitApp），真机验证：工作簿页返回回库、库页返回退出、键盘先收起
+- [x] 4.4 返回键两层化：`main.ts` backButton 按 view 分派（workbook→closeWorkbook，library→exitApp），真机验证：工作簿页返回回库、库页返回退出、键盘先收起
 
 ## 5. 收尾与交付
 
-- [ ] 5.1 全量回归：`pnpm test` 全绿（新用例 + 既有 30 用例适配后通过）、`pnpm build`、`assembleDebug`，真机走查 file-library/excel-import/sheet-switch/app-packaging 全部 delta 场景
-- [ ] 5.2 更新 README（新交互说明、勿混装旧版提示、类型过滤说明），出新的签名 release APK 并 `apksigner verify`，勾选全部任务后对照 `openspec validate --strict` 通过
+- [x] 5.1 全量回归：`pnpm test` 全绿（新用例 + 既有 30 用例适配后通过）、`pnpm build`、`assembleDebug`，真机走查 file-library/excel-import/sheet-switch/app-packaging 全部 delta 场景
+- [x] 5.2 更新 README（新交互说明、勿混装旧版提示、类型过滤说明），出新的签名 release APK 并 `apksigner verify`，勾选全部任务后对照 `openspec validate --strict` 通过
