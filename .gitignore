@@ -16,3 +16,15 @@ build/
 
 # Logs
 *.log
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/.idea/
+android/capacitor-cordova-android-plugins/build/
+
+# 签名密钥（不入库，交付客户保管）
+*.keystore
+keystore.properties

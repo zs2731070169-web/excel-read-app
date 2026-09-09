@@ -1,0 +1,29 @@
+/* 移动端基线：安全区、禁用横向滚动、可读字体（tasks 1.3） */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: #f7f8fa;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI,
+    Arial, Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  /* 竖屏单页：内容高度跟随视口，内部区域各自滚动 */
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* 安全区变量便捷引用（刘海屏/手势条）。
+   Android 15+ 强制 edge-to-edge：状态栏高度必须在这里接住，三层保险取最大——
+   ① --safe-area-inset-*：Capacitor SystemBars 原生注入的真实值（最准）
+   ② env(safe-area-inset-*)：浏览器标准变量（部分国产 WebView 返回 0，不可靠）
+   ③ 固定下限：状态栏最矮 24px，兜底防 ①② 全失效时按钮顶进状态栏 */
+:root {
+  --safe-top: max(var(--safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 24px);
+  --safe-bottom: max(var(--safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px));
+}
