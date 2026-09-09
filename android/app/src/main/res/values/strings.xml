@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Excel订单搜索</string>
+    <string name="title_activity_main">Excel订单搜索</string>
+    <string name="package_name">com.hariku.excelordersearch</string>
+    <string name="custom_url_scheme">com.hariku.excelordersearch</string>
+</resources>

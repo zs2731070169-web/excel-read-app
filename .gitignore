@@ -16,3 +16,11 @@ build/
 
 # Logs
 *.log
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/.idea/
+android/capacitor-cordova-android-plugins/build/

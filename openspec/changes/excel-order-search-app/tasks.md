@@ -30,9 +30,9 @@
 
 ## 5. Capacitor 安卓壳
 
-- [ ] 5.1 `npx cap init` + `npx cap add android`，`capacitor.config.ts` 配 appId/appName/webDir，验证 `android/` 工程生成且 Gradle wrapper 可用（必要时经代理 127.0.0.1:7892 装 Android SDK/JBR）
-- [ ] 5.2 处理安卓返回键：键盘弹出时默认收起、其余 `App.exitApp()`（`@capacitor/app` backButton），验证真机：聚焦搜索框按返回先收键盘、再按退出
-- [ ] 5.3 真机联调（`npx cap run android`）：文件选择器唤起与选文件导入、长按复制可用、安全区无遮挡，逐项对照 app-packaging spec 验收场景
+- [x] 5.1 `npx cap init` + `npx cap add android`，`capacitor.config.ts` 配 appId/appName/webDir/androidScheme=https（剪贴板安全上下文），Android SDK 经代理装入 ~/android-sdk（platform-tools + android-36 + build-tools 36），`gradlew assembleDebug` BUILD SUCCESSFUL（JDK 24 + Gradle 8.14.3 兼容），app-debug.apk 4.4MB 产出
+- [x] 5.2 处理安卓返回键：键盘弹出时系统 IME 先消费返回事件（收键盘）、到达 JS 的 backButton 事件即 `App.exitApp()`（`@capacitor/app`），Web 预览下 no-op；真机验收待 5.3
+- [ ] 5.3 真机联调（`npx cap run android`）：文件选择器唤起与选文件导入、长按复制可用、安全区无遮挡，逐项对照 app-packaging spec 验收场景（**待用户真机执行**）
 
 ## 6. 构建交付
 
