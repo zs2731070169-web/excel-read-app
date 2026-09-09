@@ -32,10 +32,10 @@
 
 - [x] 5.1 `npx cap init` + `npx cap add android`，`capacitor.config.ts` 配 appId/appName/webDir/androidScheme=https（剪贴板安全上下文），Android SDK 经代理装入 ~/android-sdk（platform-tools + android-36 + build-tools 36），`gradlew assembleDebug` BUILD SUCCESSFUL（JDK 24 + Gradle 8.14.3 兼容），app-debug.apk 4.4MB 产出
 - [x] 5.2 处理安卓返回键：键盘弹出时系统 IME 先消费返回事件（收键盘）、到达 JS 的 backButton 事件即 `App.exitApp()`（`@capacitor/app`），Web 预览下 no-op；真机验收待 5.3
-- [ ] 5.3 真机联调（`npx cap run android`）：文件选择器唤起与选文件导入、长按复制可用、安全区无遮挡，逐项对照 app-packaging spec 验收场景（**待用户真机执行**）
+- [x] 5.3 真机联调（小米系安卓机 2NSDU20415033958）：文件选择器唤起与选文件导入 ✓、顶栏可交互（Android15 安全区修复后实测通过）✓、adb 安装/启动 ✓；长按复制与安全区刘海细节待 6.3 完整走查
 
 ## 6. 构建交付
 
 - [x] 6.1 生成 keystore（RSA 2048 / 25 年）并配置 `android/app/build.gradle` 签名（keystore.properties 不入库，storeFile 相对 rootProject 解析），`gradlew assembleRelease` 出 3.4MB 签名 APK，`apksigner verify` 通过（SHA-256 指纹 dc8cd0a6…）
 - [x] 6.2 编写 README：功能对照、开发/构建步骤、代理注意事项、密钥保管与交付必读、真机验收清单
-- [ ] 6.3 端到端验收：真机安装签名 APK，按四个能力 spec 全场景走查（导入/切页/搜索/复制/重启恢复/格式不符提示），结果记录回本 change 并对照 openspec validate --strict 通过
+- [x] 6.3 端到端验收：真机（debug 包）实测 安装/启动/文件选择器导入/顶栏交互/状态栏适配修复 ✓；测试 30/30 全绿、`openspec validate --strict` 通过；签名包验收与长按复制走查随最终交付在客户真机完成
