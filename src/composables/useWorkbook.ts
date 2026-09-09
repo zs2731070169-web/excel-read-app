@@ -34,7 +34,8 @@ interface WorkbookState {
   restored: boolean
 }
 
-const state = reactive<WorkbookState>({
+/** 可变源状态（测试直接注入用）；组件层请用 useWorkbook() 返回的 readonly 视图 */
+export const state = reactive<WorkbookState>({
   phase: 'idle',
   importError: null,
   workbook: null,
@@ -139,11 +140,11 @@ export async function clearImportedData(): Promise<void> {
   resetSearch()
 }
 
-/** 切换 Sheet（sheet-switch spec: 切换后清空搜索状态） */
+/** 切换 Sheet（sheet-switch spec: 切换后清空结果、保留关键词） */
 export function switchSheet(name: string): void {
   if (state.activeSheetName === name) return
   state.activeSheetName = name
-  resetSearch()
+  resetSearchState() // 只清结果回未搜索态，关键词保留（spec 明确）
   void saveUiState({ activeSheetName: name }).catch(() => {
     state.persistenceDegraded = true
   })

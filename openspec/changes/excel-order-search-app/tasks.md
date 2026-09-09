@@ -21,12 +21,12 @@
 
 ## 4. UI 实现
 
-- [ ] 4.1 实现顶栏（`components/TopBar.vue`）：左 `van-dropdown-menu` 工作表选择、右「Excel 导入」按钮（`<input type=file accept=".xlsx,.xls">` 隐藏触发），未导入时下拉禁用显示「未导入文档」，验证：初始态、导入成功自动选第一个 Sheet、切换 Sheet 生效
-- [ ] 4.2 实现搜索栏（`components/SearchBar.vue`）：`van-field` + 「搜索」按钮，IME search 键触发，空关键词 toast 拦截，验证：按钮触发、键盘触发、输入过程不自动过滤
-- [ ] 4.3 实现结果区（`components/ResultList.vue` + `ResultRow.vue`）：原生 div/span 渲染（不用 Vant 文本组件）、`user-select: text`、列序固定「商品名称/条形码/货架号/价格」、空结果与未搜索两种空态，验证场景对齐 order-search spec（名称/货架号匹配、大小写、无结果提示）
-- [ ] 4.4 实现结果过期清空：watch 关键词与 activeSheet 变更回置 idle 并清结果，验证：改词后旧结果消失并提示重新搜索、切 Sheet 后清空、点 × 清空回初始态
-- [ ] 4.5 实现复制：行长按系统选择（真机/WebView 验证）+ 每行复制按钮（`navigator.clipboard` + `execCommand` fallback，TAB 拼接四字段）+ 成功 toast，验证复制到剪贴板内容与 spec 格式一致
-- [ ] 4.6 实现清空导入数据：顶栏清空图标（未导入时隐藏/禁用）+ `van-dialog` 确认，确认后 `persistence.clearAll()` 并复位全部状态，验证三个场景：确认清空回初始态、取消无变化、原 Excel 文件不受影响
+- [x] 4.1 实现顶栏（`components/TopBar.vue`）：左 `van-dropdown-menu` 工作表选择、右「Excel 导入」按钮（`<input type=file accept=".xlsx,.xls">` 隐藏触发），未导入时下拉禁用显示「未导入文档」，验证：初始态、导入成功自动选第一个 Sheet、切换 Sheet 生效
+- [x] 4.2 实现搜索栏（`components/SearchBar.vue`）：`van-field` + 「搜索」按钮，IME search 键触发，空关键词 toast 拦截，验证：按钮触发、键盘触发、输入过程不自动过滤
+- [x] 4.3 实现结果区（`components/ResultList.vue` + `ResultRow.vue`）：原生 div/span 渲染（不用 Vant 文本组件）、`user-select: text`、列序固定「商品名称/条形码/货架号/价格」、空结果与未搜索两种空态，验证场景对齐 order-search spec（名称/货架号匹配、大小写、无结果提示）
+- [x] 4.4 实现结果过期清空：watch 关键词与 activeSheet 变更回置 idle 并清结果，验证：改词后旧结果消失并提示重新搜索、切 Sheet 后清空、点 × 清空回初始态（状态机级测试覆盖，实现期修正：切页应保留关键词只清结果，与 sheet-switch spec 对齐）
+- [x] 4.5 实现复制：行长按系统选择（真机/WebView 验证待组5）+ 每行复制按钮（`navigator.clipboard` + `execCommand` fallback，TAB 拼接四字段）+ 成功 toast，验证复制到剪贴板内容与 spec 格式一致
+- [x] 4.6 实现清空导入数据：顶栏清空图标（未导入时隐藏）+ `van-dialog` 确认，确认后 `persistence.clearAll()` 并复位全部状态，验证场景：确认清空回初始态、取消无变化（dialog 仅在确认回调执行）、原 Excel 文件不受影响
 
 ## 5. Capacitor 安卓壳
 
