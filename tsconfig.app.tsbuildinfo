@@ -1,1 +1,1 @@
-{"root":["./src/main.ts","./src/vite-env.d.ts","./src/services/excelparser.test.ts","./src/services/excelparser.ts","./src/services/types.ts","./src/app.vue"],"version":"5.9.3"}
+{"root":["./src/main.ts","./src/vite-env.d.ts","./src/composables/useworkbook.ts","./src/services/excelparser.test.ts","./src/services/excelparser.ts","./src/services/excelworker.ts","./src/services/persistence.test.ts","./src/services/persistence.ts","./src/services/types.ts","./src/app.vue"],"version":"5.9.3"}
