@@ -109,7 +109,8 @@ async function onConfirmClear() {
   justify-content: space-between;
   gap: 8px;
   padding: 8px 12px;
-  padding-top: calc(8px + var(--safe-top));
+  /* 顶边距 = 状态栏高度 + 24px 呼吸间距（真机两轮目测调整定稿） */
+  padding-top: calc(24px + var(--safe-top));
   background: #fff;
   border-bottom: 1px solid #ebedf0;
 }

@@ -18,8 +18,12 @@ body {
   min-height: 100dvh;
 }
 
-/* 安全区变量便捷引用（刘海屏/手势条） */
+/* 安全区变量便捷引用（刘海屏/手势条）。
+   Android 15+ 强制 edge-to-edge：状态栏高度必须在这里接住，三层保险取最大——
+   ① --safe-area-inset-*：Capacitor SystemBars 原生注入的真实值（最准）
+   ② env(safe-area-inset-*)：浏览器标准变量（部分国产 WebView 返回 0，不可靠）
+   ③ 固定下限：状态栏最矮 24px，兜底防 ①② 全失效时按钮顶进状态栏 */
 :root {
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: max(var(--safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 24px);
+  --safe-bottom: max(var(--safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px));
 }
