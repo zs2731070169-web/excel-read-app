@@ -54,10 +54,11 @@ src/
 
 *备选：Pinia* —— 放弃，理由同上。*备选：多路由* —— 无页面跳转需求。
 
-### D2. Excel 解析：SheetJS，全部按格式化文本读取
+### D2. Excel 解析：SheetJS，原始值读取 + 数字字符串化
 
 - `XLSX.read(arrayBuffer, { type: 'array' })` 同时覆盖 `.xlsx` / `.xls`（CPA 唯一同时支持两格式的前端方案）
-- `XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' })` —— **`raw: false` 是关键**：单元格取显示文本，长数字条形码不会变 `6.95312E+12`，前导零文本格式保留
+- **`sheet_to_json(ws, { header: 1, raw: true, defval: '' })`**（实现期修正：原设计 `raw:false` 实测被推翻——General 渲染文本在源头就把 13 位数字截断为 `6.95312E+12`，6 位有效数字，任何下游处理都无法恢复精度）。`raw:true` 拿原始值：数字单元格是 double（13-14 位条形码整数精确），`String(n)` 完整还原；文本单元格（前导零、含字母）本就是字符串原样保留；另兜底科学计数法形态字符串的 Number 还原
+- **魔数前置校验**：`.xlsx` ZIP（PK\x03\x04）/ `.xls` OLE2（D0 CF 11 E0）——SheetJS 会把纯文本嗅探为 CSV「成功」解析，必须在 read 前拦截改名文件
 - 表头识别：首行 trim 后按别名集合匹配（名称 `[商品名称,品名,名称]`、条形码 `[条形码,upc码,条码,upc]`、货架号 `[货架号,货架,架号]`、价格 `[价格,price]`），大小写不敏感；四列齐 → 合法，缺列 → 该 Sheet 标记 invalid（不阻断其他 Sheet）
 - 数据行从第 2 行起；全空行跳过
 
