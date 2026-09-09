@@ -134,3 +134,28 @@ describe('格式不符工作表 (excel-import spec, 回归保持)', () => {
     expect(state.searchPhase).toBe('empty-result')
   })
 })
+
+describe('浏览模式 (order-search spec: 未搜索时展示全部记录)', () => {
+  it('未搜索时 browseRows = 当前门店全部记录', async () => {
+    const { browseRows } = await import('./useWorkbook')
+    expect(browseRows.value).toHaveLength(4) // 沿河店 4 条
+  })
+
+  it('切换门店后 browseRows 随之切换', async () => {
+    const { browseRows } = await import('./useWorkbook')
+    switchSheet('江店1')
+    expect(browseRows.value).toHaveLength(1)
+    expect(browseRows.value[0].name).toBe('可乐600ml')
+  })
+
+  it('搜索行为不受浏览模式影响', async () => {
+    const { browseRows } = await import('./useWorkbook')
+    setKeyword('可乐')
+    search()
+    // searchPhase=has-result 时 UI 层走 state.results，browseRows 仍为全部
+    expect(state.searchPhase).toBe('has-result')
+    expect(browseRows.value).toHaveLength(4)
+    setKeyword('') // 关键词清空 → idle → UI 回浏览
+    expect(state.searchPhase).toBe('idle')
+  })
+})

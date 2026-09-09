@@ -15,6 +15,7 @@ interface WorkbookSessionState {
   /** 搜索 */
   keyword: string
   searchPhase: SearchPhase
+  /** 搜索结果（searchPhase 为 idle 时为空数组，展示走 browseRows） */
   results: OrderRow[]
 }
 
@@ -110,6 +111,13 @@ export const activeSheet = computed<SheetResult | null>(() => {
   return state.workbook.sheets.find((s) => s.name === state.activeSheetName) ?? null
 })
 
+/** 浏览模式展示行（order-search spec: 未搜索时展示当前门店全部记录，按 Excel 行序） */
+export const browseRows = computed<OrderRow[]>(() => {
+  const sheet = activeSheet.value
+  if (!sheet || !sheet.valid) return []
+  return sheet.rows
+})
+
 export const sheetNames = computed<string[]>(
   () => state.workbook?.sheets.map((s) => s.name) ?? [],
 )
@@ -118,6 +126,7 @@ export function useWorkbook() {
   return {
     state: readonly(state),
     activeSheet,
+    browseRows,
     sheetNames,
     switchSheet,
     search,

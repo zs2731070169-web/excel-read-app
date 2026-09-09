@@ -2,13 +2,17 @@
 import { useWorkbook } from '../composables/useWorkbook'
 import ResultRow from './ResultRow.vue'
 
-const { state, activeSheet } = useWorkbook()
+const { state, activeSheet, browseRows } = useWorkbook()
+
+/** 当前应展示的行：搜索结果（has-result）或浏览模式全部记录（idle） */
+const displayRows = state.searchPhase === 'has-result' ? state.results : browseRows
+const isBrowsing = state.searchPhase === 'idle' && state.workbook !== null
 </script>
 
 <template>
   <section class="result-area">
     <!-- 表头列名固定（order-search spec） -->
-    <div v-if="state.searchPhase === 'has-result'" class="col-header">
+    <div v-if="displayRows.length > 0" class="col-header">
       <span class="c-name">商品名称</span>
       <span class="c-barcode">条形码</span>
       <span class="c-shelf">货架号</span>
@@ -16,32 +20,36 @@ const { state, activeSheet } = useWorkbook()
       <span class="c-op"></span>
     </div>
 
-    <div v-if="state.searchPhase === 'has-result'" class="rows">
-      <ResultRow v-for="(row, i) in state.results" :key="i" :row="row" />
-      <div class="result-count">共 {{ state.results.length }} 条</div>
+    <div v-if="displayRows.length > 0" class="rows">
+      <ResultRow v-for="(row, i) in displayRows" :key="i" :row="row" />
+      <div class="result-count">
+        {{ isBrowsing ? `全部 ${displayRows.length} 条` : `共 ${displayRows.length} 条` }}
+      </div>
     </div>
 
-    <!-- 空态一：无匹配结果 -->
+    <!-- 空态一：搜索无匹配结果 -->
     <van-empty
       v-else-if="state.searchPhase === 'empty-result'"
       image="search"
       description="无匹配结果"
     />
 
-    <!-- 空态二：未搜索（含关键词变更后的过期提示） -->
-    <div v-else class="placeholder">
+    <!-- 空态二：浏览模式下当前门店无记录 -->
+    <div v-else-if="isBrowsing" class="placeholder">
       <template v-if="activeSheet && !activeSheet.valid">
         <p>当前工作表格式不符</p>
         <p class="hint">缺少列：{{ activeSheet.missingColumns?.join('、') }}，请检查文档或切换其他工作表</p>
       </template>
-      <template v-else-if="state.keyword.trim() !== ''">
-        <p>结果已过期</p>
-        <p class="hint">点击「搜索」查看「{{ state.keyword }}」的结果</p>
-      </template>
       <template v-else>
-        <p>输入关键词开始搜索</p>
-        <p class="hint">支持商品名称或货架号，在当前选中的工作表内查找</p>
+        <p>本门店暂无记录</p>
+        <p class="hint">可切换其他门店或返回文件库检查文件</p>
       </template>
+    </div>
+
+    <!-- 空态三：关键词已改未搜索（结果过期） -->
+    <div v-else-if="state.keyword.trim() !== ''" class="placeholder">
+      <p>结果已过期</p>
+      <p class="hint">点击「搜索」查看「{{ state.keyword }}」的结果</p>
     </div>
   </section>
 </template>
