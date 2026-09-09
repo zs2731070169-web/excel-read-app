@@ -2,9 +2,9 @@
 
 ## 1. 项目脚手架
 
-- [ ] 1.1 初始化 Vite + Vue 3 + TypeScript 项目（`pnpm create vite`），清理模板代码，验证 `pnpm dev` 启动空白页正常
-- [ ] 1.2 安装依赖：`vant`、`xlsx`、`@capacitor/core`、`@capacitor/cli`、`@capacitor/android`、`@capacitor/app`、`@capacitor/status-bar`，配置 Vant 按需引入（`unplugin-vue-components`），验证 `pnpm build` 产物生成
-- [ ] 1.3 配置移动端基线：`viewport-fit=cover` viewport meta、safe-area CSS 变量、中文 UI 文案默认字体，验证浏览器移动模拟器下无横向滚动
+- [x] 1.1 初始化 Vite + Vue 3 + TypeScript 项目（`pnpm create vite`），清理模板代码，验证 `pnpm dev` 启动空白页正常
+- [x] 1.2 安装依赖：`vant`、`xlsx`、`@capacitor/core`、`@capacitor/cli`、`@capacitor/android`、`@capacitor/app`、`@capacitor/status-bar`，配置 Vant 按需引入（`unplugin-vue-components`），验证 `pnpm build` 产物生成
+- [x] 1.3 配置移动端基线：`viewport-fit=cover` viewport meta、safe-area CSS 变量、中文 UI 文案默认字体，验证浏览器移动模拟器下无横向滚动
 
 ## 2. Excel 解析层
 
