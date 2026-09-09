@@ -24,6 +24,11 @@ function onSelectSheet(name: string) {
     <!-- 左：返回文件库 -->
     <van-icon name="arrow-left" size="20" class="back-btn" @click="closeWorkbook" />
 
+    <!-- 当前文件名（用户反馈：无法确认在哪个文件里） -->
+    <div class="file-name" :title="state.workbook?.fileName">
+      {{ state.workbook?.fileName }}
+    </div>
+
     <!-- 中左：工作表下拉（仅工作簿页渲染此组件） -->
     <div class="picker-wrap">
       <van-dropdown-menu>
@@ -53,6 +58,16 @@ function onSelectSheet(name: string) {
   padding: 6px;
   color: #323233;
   flex-shrink: 0;
+}
+
+.file-name {
+  flex-shrink: 0;
+  max-width: 34vw;
+  font-size: 13px;
+  color: #969799;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .picker-wrap {

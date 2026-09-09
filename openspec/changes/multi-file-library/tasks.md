@@ -2,10 +2,10 @@
 
 ## 6. 真机反馈修复（实现期回归）
 
-- [ ] 6.1 修复搜索框双清空按钮：`SearchBar.vue` 隐藏 WebView 原生 `::-webkit-search-cancel-button`（与 Vant clearable 叠加出现），验证真机仅一个 ✕
-- [ ] 6.2 工作簿页顶栏显示当前文件名（真机反馈：无法确认在哪个文件里，文件名相似易混淆），验证顶栏展示且超长省略
-- [ ] 6.3 **修复渲染冻结**：`ResultList.vue` 的 `displayRows`/`isBrowsing`、`SearchBar.vue` 的 `disabled` 均为 setup 一次性求值（真机症状：搜索/清空按钮"无反应"、搜索结果不切换）——全部改为 `computed()`；状态机层补「搜索后 has-result 状态下 displayRows 来源切换」断言；真机验证：搜索「倍力乐」出结果、点 × 回浏览模式、清空按钮生效
-- [ ] 6.4 浏览模式补真实文件回归夹具：`fixtures/extended.xlsx`（4 门店 × 101 行，倍力乐在尾部）纳入解析+搜索链路测试，验证尾部行不丢失
+- [x] 6.1 修复搜索框双清空按钮：`SearchBar.vue` 隐藏 WebView 原生 `::-webkit-search-cancel-button`（与 Vant clearable 叠加出现），验证真机仅一个 ✕
+- [x] 6.2 工作簿页顶栏显示当前文件名（真机反馈：无法确认在哪个文件里，文件名相似易混淆），验证顶栏展示且超长省略
+- [x] 6.3 **修复渲染冻结**：`ResultList.vue` 的 `displayRows`/`isBrowsing`、`SearchBar.vue` 的 `disabled` 均为 setup 一次性求值（真机症状：搜索/清空按钮"无反应"、搜索结果不切换）——全部改为 `computed()`；状态机层补「搜索后 has-result 状态下 displayRows 来源切换」断言；真机验证：搜索「倍力乐」出结果、点 × 回浏览模式、清空按钮生效
+- [x] 6.4 浏览模式补真实文件回归夹具：`fixtures/extended.xlsx`（4 门店 × 101 行，倍力乐在尾部）纳入解析+搜索链路测试，验证尾部行不丢失
 
 ## 1. 数据层升级（schema v2 + 迁移）
 

@@ -1,12 +1,18 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useWorkbook } from '../composables/useWorkbook'
 import ResultRow from './ResultRow.vue'
 
 const { state, activeSheet, browseRows } = useWorkbook()
 
-/** 当前应展示的行：搜索结果（has-result）或浏览模式全部记录（idle） */
-const displayRows = state.searchPhase === 'has-result' ? state.results : browseRows
-const isBrowsing = state.searchPhase === 'idle' && state.workbook !== null
+/**
+ * 当前应展示的行：搜索结果（has-result/empty-result）或浏览模式全部记录（idle）。
+ * MUST computed —— 依赖响应式 searchPhase，一次性求值会冻结显示（design D6 教训）。
+ */
+const displayRows = computed(() =>
+  state.searchPhase === 'has-result' ? state.results : browseRows.value,
+)
+const isBrowsing = computed(() => state.searchPhase === 'idle' && state.workbook !== null)
 </script>
 
 <template>
