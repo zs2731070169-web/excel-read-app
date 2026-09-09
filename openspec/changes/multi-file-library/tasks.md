@@ -2,9 +2,9 @@
 
 ## 1. 数据层升级（schema v2 + 迁移）
 
-- [ ] 1.1 重构 `services/persistence.ts`：DB version 2，新 `files` store（keyPath id，记录含 id/fileName/firstImportedAt/importedAt/lastSheetName/workbook），提供 listFiles/getFile/putFile/deleteFile/clearFiles API，验证单测：增删查/倒序列表（firstImportedAt 排序）
-- [ ] 1.2 实现 v1→v2 迁移：onupgradeneeded 检测旧 workbook/ui-state store 记录 → 转 files 一条 → 删除旧 store；验证单测：预置 v1 数据（fake-indexeddb 建旧结构）→ 升级打开 → 断言 files 一条且字段完整、旧 store 不存在；迁移抛错时降级空库
-- [ ] 1.3 文件 id 规则：`fileName + 文件字节数` 稳定哈希；验证单测：同名同大小同 id（覆盖）、不同名不同 id
+- [x] 1.1 重构 `services/persistence.ts`：DB version 2，新 `files` store（keyPath id，记录含 id/fileName/firstImportedAt/importedAt/lastSheetName/workbook），提供 listFiles/getFile/putFile/deleteFile/clearFiles API，验证单测：增删查/倒序列表（firstImportedAt 排序）
+- [x] 1.2 实现 v1→v2 迁移：onupgradeneeded 检测旧 workbook/ui-state store 记录 → 转 files 一条 → 删除旧 store；验证单测：预置 v1 数据（fake-indexeddb 建旧结构）→ 升级打开 → 断言 files 一条且字段完整、旧 store 不存在；迁移抛错时降级空库
+- [x] 1.3 文件 id 规则：`fileName + 文件字节数` 稳定哈希；验证单测：同名同大小同 id（覆盖）、不同名不同 id
 
 ## 2. 原生文件选择桥
 
