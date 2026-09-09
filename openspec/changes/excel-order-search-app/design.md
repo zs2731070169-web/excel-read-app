@@ -74,6 +74,7 @@ src/
 - 结构：一个 db `excel-search`，store `workbook`（单记录：`{ fileName, importedAt, sheets: [{ name, valid, rows: OrderRow[] }] }`）+ store `ui-state`（`activeSheetName`）
 - 数万行 × 4 字段 JSON 序列化后可达数 MB，localStorage 5MB 上限有溢出风险；IndexedDB 无此约束且结构化克隆更快
 - 写入策略：导入完成一次性写入；启动时读取恢复；不监听文件变化
+- 清空：`persistence.clearAll()` 一次事务删 workbook + ui-state 两 store，内存态复位；原文件本就不被引用，天然不受影响
 - Vant 组件按需引入（`unplugin-vue-components`），结果区手写原生结构保 `user-select: text`
 
 *备选：localStorage + JSON* —— 容量风险，仅作降级方案（不实现，捕获 QuotaExceeded 时提示重新导入）。
