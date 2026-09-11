@@ -85,7 +85,6 @@ function allSelectedOrSelected() {
       <span class="c-barcode">条形码</span>
       <span class="c-shelf">货架号</span>
       <span class="c-price">价格</span>
-      <span class="c-op"></span>
     </div>
 
     <div v-if="displayRows.length > 0" class="rows">
@@ -169,8 +168,7 @@ function allSelectedOrSelected() {
 .c-name { width: 28%; }
 .c-barcode { width: 27%; }
 .c-shelf { width: 14%; }
-.c-price { width: 11%; }
-.c-op { width: 11%; }
+.c-price { width: 22%; }
 
 .placeholder {
   padding: 48px 24px;

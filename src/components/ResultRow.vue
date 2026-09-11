@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { showToast } from 'vant'
-import { copyTextToClipboard, formatRowText } from '../services/clipboard'
 import type { OrderRow } from '../services/types'
 
 const props = defineProps<{
@@ -14,16 +12,6 @@ const emit = defineEmits<{
   /** 勾选状态切换 */
   toggle: [index: number]
 }>()
-
-/** 整行复制（result-copy spec） */
-async function copyRow(): Promise<void> {
-  try {
-    await copyTextToClipboard(formatRowText(props.row))
-    showToast('已复制')
-  } catch {
-    showToast('复制失败，请长按文字手动复制')
-  }
-}
 
 function onToggle() {
   emit('toggle', props.index)
@@ -53,9 +41,6 @@ function onToggle() {
       >{{ row.barcode }}</span
     ><span class="sep">{{ '\t' }}</span><span class="c-shelf">{{ row.shelf }}</span
     ><span class="sep">{{ '\t' }}</span><span class="c-price">{{ row.price }}</span>
-    <button class="c-op copy-btn" type="button" aria-label="复制本行" @click="copyRow">
-      复制
-    </button>
   </div>
 </template>
 
@@ -103,7 +88,7 @@ function onToggle() {
 }
 
 .c-shelf { width: 14%; color: #323233; }
-.c-price { width: 11%; color: #ee0a24; }
+.c-price { width: 22%; color: #ee0a24; }
 
 /* TAB 分隔符：存在于 DOM（长按复制带上），不占可见宽度 */
 .sep {
@@ -112,20 +97,4 @@ function onToggle() {
   -webkit-user-select: text;
 }
 
-.c-op {
-  width: 11%;
-  flex-shrink: 0;
-}
-
-.copy-btn {
-  border: 1px solid #1989fa;
-  background: #fff;
-  color: #1989fa;
-  border-radius: 4px;
-  font-size: 12px;
-  padding: 3px 8px;
-  /* spec: 长按自由选择时按钮文字不得混入复制内容 */
-  user-select: none;
-  -webkit-user-select: none;
-}
 </style>
