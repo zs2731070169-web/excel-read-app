@@ -12,7 +12,7 @@ const { state, activeSheet, browseRows } = useWorkbook()
  * MUST computed —— 依赖响应式 searchPhase，一次性求值会冻结显示（design D6 教训）。
  */
 const displayRows = computed(() =>
-  state.searchPhase === 'has-result' ? state.results : browseRows.value,
+  state.searchPhase === 'idle' ? browseRows.value : state.results,
 )
 const isBrowsing = computed(() => state.searchPhase === 'idle' && state.workbook !== null)
 
