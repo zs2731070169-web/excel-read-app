@@ -56,7 +56,10 @@ function onTouchStart(e: TouchEvent) {
 function onTouchMove(e: TouchEvent) {
   const t = e.touches[0]
   const delta = t.clientX - touchStartX
-  if (Math.abs(delta) > 6) moved = true
+  if (Math.abs(delta) > 6) {
+    moved = true
+    e.preventDefault() // 横向拖动超过阈值后阻止列表滚动，防手势冲突
+  }
   dragging.value = startOffset + delta
 }
 
@@ -82,6 +85,11 @@ function onClickDelete() {
   emit('delete', props.file.id)
 }
 
+/** 文件格式标签：xls → XLS，其余 → XLSX */
+const fileExtLabel = computed(() =>
+  props.file.fileName.toLowerCase().endsWith('.xls') ? 'XLS' : 'XLSX',
+)
+
 /** 日期展示：天粒度 YYYY-MM-DD */
 const dateLabel = computed(() => {
   const d = new Date(props.file.importedAt)
@@ -104,7 +112,7 @@ const dateLabel = computed(() => {
       :style="{ transform: `translateX(${translateX}px)` }"
       @click="onClick"
     >
-      <div class="icon">XLSX</div>
+      <div class="icon">{{ fileExtLabel }}</div>
       <div class="meta">
         <div class="name">{{ file.fileName }}</div>
         <div class="date">{{ dateLabel }}</div>

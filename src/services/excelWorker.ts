@@ -43,14 +43,6 @@ ctx.onmessage = (e: MessageEvent<ParseRequest>) => {
     // 开始/各 Sheet/完成——parseWorkbook 返回后统一播报，UI 至少有阶段感。
     // 数万行 sheet_to_json 为毫秒级，无需更细粒度。）
     const data = parseWorkbook(arrayBuffer, fileName)
-    data.sheets.forEach((_, i) => {
-      ctx.postMessage({
-        type: 'progress',
-        id,
-        sheetIndex: i + 1,
-        sheetCount: data.sheets.length,
-      } satisfies ProgressMessage)
-    })
     ctx.postMessage({ type: 'done', id, data } satisfies DoneMessage)
   } catch (err) {
     ctx.postMessage({

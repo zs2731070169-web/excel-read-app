@@ -58,7 +58,9 @@ export async function pickExcelFile(): Promise<PickedFile | null> {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.xlsx,.xls'
+    let resolved = false
     input.onchange = async () => {
+      resolved = true
       const file = input.files?.[0]
       if (!file) {
         resolve(null)
@@ -71,6 +73,16 @@ export async function pickExcelFile(): Promise<PickedFile | null> {
       }
       resolve({ fileName: file.name, arrayBuffer: buf })
     }
+    /* Chrome 不在取消时触发 change——监听窗口 focus 兜底判定取消 */
+    const onFocus = () => {
+      setTimeout(() => {
+        if (!resolved) {
+          resolved = true
+          resolve(null)
+        }
+      }, 300)
+    }
+    window.addEventListener('focus', onFocus, { once: true })
     input.click()
   })
 }

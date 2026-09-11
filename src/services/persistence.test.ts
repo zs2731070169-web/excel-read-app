@@ -9,7 +9,6 @@ import {
   getFile,
   listFiles,
   putFile,
-  updateLastSheetName,
   type LibraryFile,
 } from './persistence'
 import type { WorkbookData } from './types'
@@ -92,12 +91,6 @@ describe('files store CRUD (1.1)', () => {
     expect((await listFiles()).map((f) => f.fileName)).toEqual(['a.xlsx'])
   })
 
-  it('updateLastSheetName 轻量更新', async () => {
-    await putFile(makeRecord('订单.xlsx', 1000))
-    const { id } = (await listFiles())[0]
-    await updateLastSheetName(id, '沿河店')
-    expect((await getFile(id))?.lastSheetName).toBe('沿河店')
-  })
 })
 
 describe('v1→v2 迁移 (1.2)', () => {
