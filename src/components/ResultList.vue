@@ -64,7 +64,7 @@ async function copyMainAction(): Promise<void> {
   }
 }
 
-/** 当前应复制的行集合：勾选优先，否则全部展示行 */
+/** 当前应复制的行集合：仅勾选行（未勾选时返回空数组，按钮禁用不触发调用） */
 function allSelectedOrSelected() {
   if (selectedIndexes.value.size > 0) {
     return [...selectedIndexes.value]
@@ -72,7 +72,7 @@ function allSelectedOrSelected() {
       .map((i) => displayRows.value[i])
       .filter(Boolean)
   }
-  return displayRows.value
+  return []
 }
 </script>
 
@@ -136,8 +136,15 @@ function allSelectedOrSelected() {
       >
         全选
       </van-checkbox>
-      <van-button type="primary" size="small" round class="copy-main-btn" @click="copyMainAction">
-        {{ selectedIndexes.size > 0 ? `复制选中（${selectedIndexes.size}）` : '复制当前列表' }}
+      <van-button
+        type="primary"
+        size="small"
+        round
+        class="copy-main-btn"
+        :disabled="selectedIndexes.size === 0"
+        @click="copyMainAction"
+      >
+        {{ selectedIndexes.size > 0 ? `复制选中（${selectedIndexes.size}）` : '请先勾选' }}
       </van-button>
     </div>
   </section>
@@ -168,7 +175,7 @@ function allSelectedOrSelected() {
 .c-name { width: 28%; }
 .c-barcode { width: 27%; }
 .c-shelf { width: 14%; }
-.c-price { width: 22%; }
+.c-price { width: 22%; text-align: left; }
 
 .placeholder {
   padding: 48px 24px;
