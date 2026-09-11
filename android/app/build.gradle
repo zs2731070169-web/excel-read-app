@@ -43,6 +43,16 @@ android {
                 signingConfig signingConfigs.release
             }
         }
+        debug {
+            // debug 也用自定义 APK 名
+        }
+    }
+
+    // 自定义 APK 输出文件名
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "excel读取${variant.name == 'release' ? '' : '-debug'}.apk"
+        }
     }
 }
 
