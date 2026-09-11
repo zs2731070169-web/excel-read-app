@@ -17,11 +17,12 @@
 
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-        <item name="android:background">@drawable/splash</item>
-        <!-- Android 12+ 系统 SplashScreen 层：用我们的图标替代默认 logo，
-             背景白色与自绘 splash 一致；icon 后景色与图标底色衔接 -->
+        <!-- 启动页纯白过渡：Android 8-11 背景直接用白色，不再用 splash 图 -->
+        <item name="android:background">@android:color/white</item>
+        <!-- Android 12+ 系统 SplashScreen 层：图标位设为透明（不设则会默认显示 app 图标），
+             视觉效果即纯白屏；背景同为白色 -->
         <item name="windowSplashScreenBackground">@android:color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/splash_icon</item>
+        <item name="windowSplashScreenAnimatedIcon">@android:color/transparent</item>
         <item name="windowSplashScreenAnimationDuration">0</item>
         <!-- 关键：关掉系统自动追加的应用名文字标签 -->
         <item name="android:windowSplashScreenBrandingImage">@android:color/transparent</item>
