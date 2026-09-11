@@ -59,4 +59,9 @@ function onSearch() {
   -webkit-appearance: none;
   display: none;
 }
+
+/* 搜索按钮与 clearable ✕ 图标之间留触控安全间距，防误触 */
+.keyword-field :deep(.van-field__button) {
+  margin-left: 4px;
+}
 </style>
