@@ -88,7 +88,7 @@ function onToggle() {
 }
 
 .c-shelf { width: 14%; color: #323233; }
-.c-price { width: 22%; color: #ee0a24; }
+.c-price { width: 22%; color: #ee0a24; text-align: left; }
 
 /* TAB 分隔符：存在于 DOM（长按复制带上），不占可见宽度 */
 .sep {
