@@ -36,13 +36,12 @@ describe('ResultRow 渲染（result-copy spec）', () => {
     expect(tabs[0]).toBe(sample.name)
     expect(tabs[1]).toBe(sample.barcode)
     expect(tabs[2]).toBe(sample.shelf)
-    expect(tabs[3]).toContain(sample.price) // 尾段含按钮文字
+    expect(tabs[3]).toBe(sample.price)
   })
 
-  it('分隔 span 存在且按钮含 user-select:none 样式类可命中', () => {
+  it('分隔 span 存在', () => {
     const wrapper = mount(ResultRow, { props: { row: sample, index: 0, selected: false } })
     expect(wrapper.findAll('.sep')).toHaveLength(3)
-    expect(wrapper.find('.copy-btn').exists()).toBe(true)
   })
 
   it('勾选框存在且选中态加 checked 类', () => {
