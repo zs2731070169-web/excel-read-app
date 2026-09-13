@@ -74,6 +74,21 @@ describe('搜索匹配规则 (order-search spec, 回归保持)', () => {
     expect(state.results.map((r) => r.name)).toEqual(['可乐330ml', 'Cola Mini'])
   })
 
+  it('关键词命中显示截断部分仍能搜到（省略仅显示层，匹配基于数据层完整名称）', () => {
+    // 超长名称：前段超出列宽被 CSS 省略号截断，尾段「第999号限定款」仅存在于数据层
+    state.workbook!.sheets[0].rows.push({
+      name: '【超长品牌名称】爆款促销装草莓香味组合第999号限定款',
+      barcode: '6901234000097',
+      shelf: 'D-99',
+      price: '99',
+    })
+    setKeyword('第999号限定款')
+    search()
+    expect(state.results.map((r) => r.name)).toEqual([
+      '【超长品牌名称】爆款促销装草莓香味组合第999号限定款',
+    ])
+  })
+
   it('大小写不敏感', () => {
     setKeyword('cola')
     search()
