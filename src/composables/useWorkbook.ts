@@ -8,7 +8,7 @@ import type { SheetResult, WorkbookData } from '../services/types'
 export type SearchPhase = 'idle' | 'has-result' | 'empty-result'
 
 interface WorkbookSessionState {
-  /** 当前会话的工作簿（null = 无会话，文件库页） */
+  /** 当前会话的工作簿（null = 无会话：启动恢复完成前，或无文件导入空态） */
   workbook: WorkbookData | null
   /** 当前选中 Sheet 名 */
   activeSheetName: string | null
@@ -54,7 +54,7 @@ export function openWorkbookSession(
   state.keyword = ''
 }
 
-/** 结束会话（回文件库） */
+/** 重置会话（测试隔离用；文件库页移除后 UI 无主动结束入口） */
 export function resetWorkbookSession(): void {
   state.workbook = null
   state.activeSheetName = null
@@ -95,12 +95,6 @@ export function setKeyword(kw: string): void {
   resetSearchState()
 }
 
-/** 清空搜索回到初始态（× 按钮） */
-export function resetSearch(): void {
-  state.keyword = ''
-  resetSearchState()
-}
-
 function resetSearchState(): void {
   state.results = []
   state.searchPhase = 'idle'
@@ -131,6 +125,5 @@ export function useWorkbook() {
     switchSheet,
     search,
     setKeyword,
-    resetSearch,
   }
 }

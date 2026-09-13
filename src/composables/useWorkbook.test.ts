@@ -6,7 +6,6 @@ import { clearFiles } from '../services/persistence'
 import type { WorkbookData } from '../services/types'
 import {
   openWorkbookSession,
-  resetSearch,
   resetWorkbookSession,
   search,
   setKeyword,
@@ -41,8 +40,7 @@ function makeWorkbook(): WorkbookData {
 
 beforeEach(() => {
   resetWorkbookSession()
-  resetSearch()
-  openWorkbookSession(makeWorkbook(), null)
+  openWorkbookSession(makeWorkbook(), null) // 注入即重置搜索态（keyword=''/idle）
   void clearFiles()
 })
 

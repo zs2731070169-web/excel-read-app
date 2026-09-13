@@ -37,7 +37,8 @@ function onSelectSheet(name: string) {
       </van-dropdown-menu>
     </div>
 
-    <!-- Excel 导入（文件库页移除后导入入口唯一化于顶栏；解析中 loading 防重复） -->
+    <!-- Excel 导入（文件库页移除后导入入口唯一化于顶栏；解析中 loading 防重复）。
+         loading 态置空默认插槽：vant loading 中改显 loading-text，置空防双文案叠加 -->
     <van-button
       type="primary"
       size="small"

@@ -56,7 +56,6 @@ beforeEach(async () => {
   await clearFiles()
   resetWorkbookSession()
   state.view = 'empty'
-  state.activeFileId = null
   state.importPhase = 'idle'
   state.importError = null
   state.restored = false
@@ -65,18 +64,28 @@ beforeEach(async () => {
 describe('启动恢复（直达最近导入文件）', () => {
   it('有文件 → 直接进入最近导入文件的工作簿页', async () => {
     await seedFile('订单旧.xlsx', 1000)
-    const latestId = await seedFile('订单新.xlsx', 2000)
+    await seedFile('订单新.xlsx', 2000)
     await restoreLibrary()
     expect(state.view).toBe('workbook')
-    expect(state.activeFileId).toBe(latestId)
+    expect(workbookState.workbook?.fileName).toBe('订单新.xlsx')
     expect(workbookState.activeSheetName).toBe('沿河店') // 无记忆选第一个门店
     expect(state.restored).toBe(true)
+  })
+
+  it('重导旧文件后重启 → 仍直达该文件（按 importedAt 最近导入判定）', async () => {
+    const idOld = await seedFile('订单A.xlsx', 1000)
+    await seedFile('订单B.xlsx', 2000)
+    // 模拟覆盖重导 A：firstImportedAt 保留、importedAt 更新为最新
+    const record = (await getFile(idOld))!
+    record.importedAt = 3000
+    await putFile(record)
+    await restoreLibrary()
+    expect(workbookState.workbook?.fileName).toBe('订单A.xlsx')
   })
 
   it('无文件 → 落在导入引导空态', async () => {
     await restoreLibrary()
     expect(state.view).toBe('empty')
-    expect(state.activeFileId).toBeNull()
     expect(state.restored).toBe(true)
   })
 
