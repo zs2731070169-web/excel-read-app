@@ -21,12 +21,7 @@ function onSelectSheet(name: string) {
 
 <template>
   <header class="top-bar">
-    <!-- 当前文件名（用户反馈：无法确认在哪个文件里） -->
-    <div class="file-name" :title="state.workbook?.fileName">
-      {{ state.workbook?.fileName }}
-    </div>
-
-    <!-- 门店（工作表）下拉：中部占满剩余宽度 -->
+    <!-- 门店（工作表）下拉：左上角主位，占满除导入按钮外的剩余宽度 -->
     <div class="picker-wrap">
       <van-dropdown-menu>
         <van-dropdown-item
@@ -62,16 +57,6 @@ function onSelectSheet(name: string) {
   padding-top: calc(24px + var(--safe-top));
   background: #fff;
   border-bottom: 1px solid #ebedf0;
-}
-
-.file-name {
-  flex-shrink: 0;
-  max-width: 30vw;
-  font-size: 13px;
-  color: #969799;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .picker-wrap {

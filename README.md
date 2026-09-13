@@ -108,7 +108,7 @@ keyPassword=<密码>
 excel-read-app/
 ├── src/
 │   ├── components/           # Vue 组件
-│   │   ├── TopBar.vue        # 顶栏（文件名 / 门店切换 / 导入）
+│   │   ├── TopBar.vue        # 顶栏（门店切换 / 导入）
 │   │   ├── SearchBar.vue     # 搜索栏
 │   │   ├── ResultList.vue    # 结果列表 + 操作栏
 │   │   └── ResultRow.vue     # 单行记录
