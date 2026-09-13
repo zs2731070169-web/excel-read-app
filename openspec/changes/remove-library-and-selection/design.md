@@ -33,9 +33,10 @@
 
 删除 `FileLibrary.vue`、`FileCard.vue`；`useLibrary` 移除导出 `closeWorkbook`、`deleteLibraryFile`（UI 无入口即死代码）。`TopBar` 移除返回箭头与 `closeWorkbook` 调用，右侧新增导入按钮。`App.vue` 空态分支内联实现（van-empty 风格引导文案 + 导入按钮），不新建组件——仅一个按钮，最小闭环。
 
-### D4 一键复制当前列表
+### D4 结果区纯展示，复制仅剩长按
 
-`ResultList` 删除 `selectedIndexes` / `watch` 清空 / `allSelected` / `toggleRow` / `toggleSelectAll`，`copyMainAction` 改名 `copyCurrentList`：`rows = displayRows`（computed 已统一搜索/浏览两态），空列表时操作栏本身不渲染（现有 `v-if`），按钮恒可用、文案 `复制 N 条`。`ResultRow` 删除 `selected` / `index` props、`toggle` emit、复选框与 `.checked` 样式；TAB 分隔 span 结构原样保留（长按复制与格式保真的来源）。表头 `.c-check-h` 格删除。
+`ResultList` 删除 `selectedIndexes` / `watch` 清空 / `allSelected` / `toggleRow` / `toggleSelectAll` 与整个底部操作栏（含复制按钮与复制逻辑），结果区为纯展示列表；`result-area` 底部内边距从「为固定操作栏预留 64px」回归常规呼吸留白。`ResultRow` 删除 `selected` / `index` props、`toggle` emit、复选框与 `.checked` 样式；TAB 分隔 span 结构原样保留（长按复制的行内分隔来源，格式尽力而为）。表头 `.c-check-h` 格删除。剪贴板服务 `clipboard.ts`（copyTextToClipboard / formatRowText / joinRowsText）随消费者移除整文件删除——不留无调用方的休眠 API（用户确认；恢复时从 git 历史回溯）。
+（修订记录：初版方案为底部「一键复制当前列表」按钮，用户审查后要求连按钮一并移除。）
 
 ### D5 列宽重分配与商品名称省略
 
@@ -62,6 +63,7 @@ TopBar 内 `:deep(.van-dropdown-menu__title) { font-size: 17px; font-weight: 500
 
 ## Risks / Trade-offs
 
+- [程序化精确格式复制路径彻底移除，长按复制格式尽力而为（WebView 序列化不可控）] → 用户明确取舍（审查后修订需求）；TAB 分隔定稿结论留存于归档 spec 与 git 历史，恢复走新变更
 - [返回键在数据列表页直接退出，误触即离 App] → 与原「文件库页（导航根）返回键退出」行为一致，未引入新风险；如真机反馈误触多，后续变更补「再按一次退出」toast，不进本闭环
 - [多文件数据在 UI 层不可达，长期堆积占存储] → 采纳为已知取舍：同名同大小覆盖是主更新路径；需要清理时以新变更补管理入口（file-library delta 已记录 Migration 说明）
 - [`state.files` 移除后未来做文件切换器要加回] → 加回成本低（一行 `listFiles()`），不为假设需求保留状态

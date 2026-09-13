@@ -24,3 +24,8 @@
 
 - [x] 5.1 全量回归：`pnpm test` 全绿 + `pnpm build`（vue-tsc + vite）零错误，确认无未接线代码（死代码、未调用导出、过时注释）——结合代码审查清单逐项过
 - [x] 5.2 对照 delta specs 逐场景核验（excel-import 六场景 / file-library 移除 / order-search 省略场景 / result-copy 一键复制四场景 / sheet-switch 三场景 / app-packaging 三场景），记录核验结果后执行两阶段代码审查并清理问题（多智能体四维度审查 + 双票对抗验证，确认项已全部修复并回归）
+
+## 6. 修订：移除底部复制操作栏（用户审查后需求）
+
+- [ ] 6.1 `ResultList.vue` 删除底部操作栏（含「复制 N 条」按钮）、copyCurrentList 逻辑与 action-bar/copy-main-btn 样式，`result-area` 底部内边距回归常规留白；删除 `src/services/clipboard.ts` 与 `clipboard.test.ts`（全部消费者移除，不留休眠 API）；`ResultList.test.ts` 移除一键复制用例与 vant/clipboard mock、保留 displayRows 用例并新增「有行也无操作栏」守卫断言；`pnpm test` 全绿 + `pnpm build` 零类型错误验证
+- [ ] 6.2 README 同步（主链路改为「导入 → 浏览/搜索 → 长按复制」，「一键复制」小节改写）；真机/浏览器冒烟：列表无底栏不遮挡、长按可正常选择复制

@@ -10,7 +10,7 @@
   - 「Excel 导入」入口从文件库页迁移到工作簿页顶栏（解析中 loading，防重复触发）；无文件空态页同样提供导入入口
   - 移除「返回文件库」交互（顶栏返回箭头、安卓返回键回库）；工作簿页成为导航根，返回键退出应用
   - 移除多文件列表与左滑删除 UI；IndexedDB 多文件持久化模型保留（同名同大小重导仍覆盖），仅去掉 UI 层
-- **BREAKING** 移除勾选复制（底部全选框 + 每行复选框）：复制按钮改为一键复制当前列表（搜索态 = 当前搜索结果，浏览态 = 当前门店全部记录）；TAB 分隔 + 行间换行的复制格式与成功反馈不变；长按自由选择复制保留
+- **BREAKING** 移除底部复制操作栏与全部程序化复制路径：删除全选框、每行复选框与底部「复制 N 条」按钮，结果区为纯展示列表；复制仅保留长按自由选择（WebView 格式尽力而为）；剪贴板服务（clipboard.ts）随消费者移除一并删除
 - 搜索按钮加宽（扩大触控区，方便点击）
 - 顶栏工作表（门店）下拉当前项与选项字号放大，清晰可读
 - 商品名称列超长时单行省略号截断，不再换行撑高；勾选列移除后四列列宽重新分配
@@ -35,6 +35,7 @@
 - **前端组件**：`src/App.vue`（视图分支重构 + 无文件空态）、`src/components/FileLibrary.vue` 与 `FileCard.vue`（删除）、`TopBar.vue`（去返回箭头 + 导入按钮迁移）、`SearchBar.vue`（按钮加宽）、`ResultList.vue`（去勾选体系 + 一键复制）、`ResultRow.vue`（去复选框 + 名称省略 + 列宽）
 - **状态层**：`src/composables/useLibrary.ts`（视图状态机 `'library'` → 无文件空态 / 工作簿两态、启动恢复直达、导入完成自动 openFile、closeWorkbook/deleteLibraryFile 导出移除）；`useWorkbook.ts` 会话逻辑不变
 - **入口**：`src/main.ts`（安卓返回键分派简化为退出应用）
-- **测试**：`useLibrary.test.ts`（视图流转场景重写）、`ResultRow.test.ts`（勾选断言移除）、`ResultList.test.ts`（复制逻辑补充）
-- **不受影响**：`services/`（persistence 多文件模型、excelParser、clipboard、excelPicker）、excelWorker、解析与搜索逻辑
+- **测试**：`useLibrary.test.ts`（视图流转场景重写）、`ResultRow.test.ts`（勾选断言移除）、`ResultList.test.ts`（复制用例移除、保留 displayRows 逻辑）、`clipboard.test.ts` 随服务删除
+- **删除的文件**：`src/components/FileLibrary.vue`、`src/components/FileCard.vue`、`src/services/clipboard.ts`（消费者全部移除）
+- **不受影响**：`services/`（persistence 多文件模型、excelParser、excelPicker）、excelWorker、解析与搜索逻辑
 - **规格同步**：归档时 6 个主 spec 按 delta 更新；此前已归档的 stay-in-library-after-import、multi-file-library（UI 层）、require-select-before-copy 三个变更的行为被本变更显式推翻
