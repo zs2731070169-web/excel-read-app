@@ -66,7 +66,8 @@ function onSelectSheet(name: string) {
 
 .picker-wrap :deep(.van-dropdown-menu__bar) {
   box-shadow: none;
-  height: 40px;
+  /* 高度 46px（真机反馈二轮：40px 偏小不易点选）——左侧整条为点按热区 */
+  height: 46px;
   background: transparent;
 }
 
@@ -76,16 +77,11 @@ function onSelectSheet(name: string) {
   justify-content: flex-start;
 }
 
-/* 标题去掉 vant 默认左内边距，与下方列表内容（12px）左缘对齐 */
+/* 标题字号 19px（真机反馈二轮放大）+ 去掉 vant 默认左内边距，与下方列表内容（12px）左缘对齐 */
 .picker-wrap :deep(.van-dropdown-menu__title) {
-  padding-left: 0;
-}
-
-/* 门店下拉字号放大（sheet-switch spec：当前项与选项清晰可读；真机反馈原字号太小）。
-   依赖 Vant 内部类名，升级 vant 需回归真机确认 */
-.picker-wrap :deep(.van-dropdown-menu__title) {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 500;
+  padding-left: 0;
 }
 
 .picker-wrap :deep(.van-dropdown-item__option) {
