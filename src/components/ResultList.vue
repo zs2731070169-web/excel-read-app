@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { showToast } from 'vant'
 import { computed } from 'vue'
 import { useWorkbook } from '../composables/useWorkbook'
-import { copyTextToClipboard, joinRowsText } from '../services/clipboard'
 import ResultRow from './ResultRow.vue'
 
 const { state, activeSheet, browseRows } = useWorkbook()
@@ -15,21 +13,6 @@ const displayRows = computed(() =>
   state.searchPhase === 'idle' ? browseRows.value : state.results,
 )
 const isBrowsing = computed(() => state.searchPhase === 'idle' && state.workbook !== null)
-
-/**
- * 一键复制当前列表（result-copy spec）：搜索态复制当前结果，浏览态复制当前门店全部；
- * 格式由 joinRowsText 保证（行内 TAB 分隔、行间换行）。
- * 操作栏仅在列表有行时渲染，故此处无需空列表防御。
- */
-async function copyCurrentList(): Promise<void> {
-  const rows = displayRows.value
-  try {
-    await copyTextToClipboard(joinRowsText(rows))
-    showToast(`已复制 ${rows.length} 条`)
-  } catch {
-    showToast('复制失败，请长按文字手动复制')
-  }
-}
 </script>
 
 <template>
@@ -73,19 +56,6 @@ async function copyCurrentList(): Promise<void> {
       <p>结果已过期</p>
       <p class="hint">点击「搜索」查看「{{ state.keyword }}」的结果</p>
     </div>
-
-    <!-- 底部操作栏（result-copy spec）：一键复制当前列表，按钮恒可用 -->
-    <div v-if="displayRows.length > 0" class="action-bar">
-      <van-button
-        type="primary"
-        size="small"
-        round
-        class="copy-main-btn"
-        @click="copyCurrentList"
-      >
-        复制 {{ displayRows.length }} 条
-      </van-button>
-    </div>
   </section>
 </template>
 
@@ -94,8 +64,8 @@ async function copyCurrentList(): Promise<void> {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  /* 底部留出固定操作栏高度 */
-  padding-bottom: calc(64px + var(--safe-bottom));
+  /* 底部常规呼吸留白（固定复制操作栏已移除，result-copy 修订） */
+  padding-bottom: calc(16px + var(--safe-bottom));
 }
 
 .col-header {
@@ -133,26 +103,5 @@ async function copyCurrentList(): Promise<void> {
   text-align: center;
   font-size: 12px;
   color: #c8c9cc;
-}
-
-/* 底部操作栏：固定于结果区底，不随列表滚动（勾选复制移除后仅剩主复制按钮）。
-   栏贴底不变，仅加大底内边距把内容抬高手势条（真机反馈：太贴底） */
-.action-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 10px 16px calc(20px + var(--safe-bottom));
-  background: #fff;
-  border-top: 1px solid #ebedf0;
-  z-index: 5;
-}
-
-.copy-main-btn {
-  min-width: 132px;
-  font-weight: 500;
 }
 </style>

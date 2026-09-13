@@ -27,6 +27,6 @@
 
 ## 6. 修订：移除底部复制操作栏（用户审查后需求）
 
-- [ ] 6.1 `ResultList.vue` 删除底部操作栏（含「复制 N 条」按钮）、copyCurrentList 逻辑与 action-bar/copy-main-btn 样式，`result-area` 底部内边距回归常规留白；删除 `src/services/clipboard.ts` 与 `clipboard.test.ts`（全部消费者移除，不留休眠 API）；`ResultList.test.ts` 移除一键复制用例与 vant/clipboard mock、保留 displayRows 用例并新增「有行也无操作栏」守卫断言；`pnpm test` 全绿 + `pnpm build` 零类型错误验证
+- [x] 6.1 `ResultList.vue` 删除底部操作栏（含「复制 N 条」按钮）、copyCurrentList 逻辑与 action-bar/copy-main-btn 样式，`result-area` 底部内边距回归常规留白；删除 `src/services/clipboard.ts` 与 `clipboard.test.ts`（全部消费者移除，不留休眠 API）；`ResultList.test.ts` 移除一键复制用例与 vant/clipboard mock、保留 displayRows 用例并新增「有行也无操作栏」守卫断言；`pnpm test` 全绿 + `pnpm build` 零类型错误验证
 - [ ] 6.2 README 同步（主链路改为「导入 → 浏览/搜索 → 长按复制」，「一键复制」小节改写）；真机/浏览器冒烟：列表无底栏不遮挡、长按可正常选择复制
 - [x] 6.3 省略与搜索兼容性锁定（用户验收点）：order-search delta 明示「匹配基于数据层完整名称」并补场景（同步清理该场景里失效的一键复制表述）；useWorkbook.test 新增「关键词命中显示截断部分仍能搜到」回归用例
