@@ -36,7 +36,6 @@ function onSearch() {
     />
     <van-button
       type="primary"
-      size="small"
       class="search-button"
       :disabled="disabled"
       @click="onSearch"
@@ -73,8 +72,13 @@ function onSearch() {
   display: none;
 }
 
-/* 搜索按钮不被压缩（胶囊 flex:1 承担宽度收缩），保证可点击面积 */
+/* 搜索按钮不被压缩（胶囊 flex:1 承担宽度收缩）；
+   加宽加大触控区（真机反馈：原 small 按钮太窄难点中）——
+   高度取 32px 与输入胶囊等高（vant small=24px 过矮、normal=44px 过高） */
 .search-button {
   flex-shrink: 0;
+  min-width: 72px;
+  height: 32px;
+  padding: 0 14px;
 }
 </style>

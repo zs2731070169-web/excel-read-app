@@ -1,21 +1,9 @@
 <script setup lang="ts">
 import type { OrderRow } from '../services/types'
 
-const props = defineProps<{
+defineProps<{
   row: OrderRow
-  /** 行索引（选中集合的 key） */
-  index: number
-  selected: boolean
 }>()
-
-const emit = defineEmits<{
-  /** 勾选状态切换 */
-  toggle: [index: number]
-}>()
-
-function onToggle() {
-  emit('toggle', props.index)
-}
 </script>
 
 <!--
@@ -25,17 +13,13 @@ function onToggle() {
   两层坑（7.3 探针实证）：① 标签间空白文本被 Vue whitespace:'condense' 移除；
   ② 模板实体 &#9; 经实体解析渲染成普通空格。字符串表达式是运行时值，两者皆避。
   font-size:0 让 TAB 不占可见宽度（显示紧贴、复制带分隔）。
-  勾选复制（7.4）：行首复选框，精确格式复制的主路径；
-  长按自由复制保留为尽力而为（WebView 序列化不可控）。
+  勾选复制已移除（remove-library-and-selection）：行为纯展示行；
+  精确格式复制走底部一键复制，长按自由复制保留为尽力而为。
+  商品名称超长单行省略（order-search spec）：text-overflow 只裁显示不裁 DOM 文本，
+  长按选择与一键复制仍取到完整名称。
 -->
 <template>
-  <div class="row" :class="{ checked: selected }">
-    <van-checkbox
-      :model-value="selected"
-      class="c-check"
-      checked-color="#1989fa"
-      @update:model-value="onToggle"
-    />
+  <div class="row">
     <span class="c-name">{{ row.name }}</span><span class="sep">{{ '\t' }}</span><span
       class="c-barcode"
       >{{ row.barcode }}</span
@@ -60,35 +44,25 @@ function onToggle() {
   -webkit-touch-callout: default;
 }
 
-/* 勾选态视觉反馈 */
-.row.checked {
-  background: #f0f7ff;
-}
-
-.c-check {
-  flex-shrink: 0;
-  margin-right: 2px;
-  /* 复选框不参与文本选择 */
-  user-select: none;
-  -webkit-user-select: none;
-}
-
+/* 商品名称：单行省略（超长截断不换行撑高），DOM 文本保留全名供复制 */
 .c-name {
-  width: 28%;
-  word-break: break-all;
+  width: 32%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #323233;
 }
 
 .c-barcode {
-  width: 27%;
+  width: 29%;
   word-break: break-all;
   font-family: 'SF Mono', Menlo, Consolas, monospace;
   font-size: 13px;
   color: #323233;
 }
 
-.c-shelf { width: 14%; color: #323233; }
-.c-price { width: 22%; color: #ee0a24; text-align: left; }
+.c-shelf { width: 15%; color: #323233; }
+.c-price { width: 24%; color: #ee0a24; text-align: left; }
 
 /* TAB 分隔符：存在于 DOM（长按复制带上），不占可见宽度 */
 .sep {
@@ -96,5 +70,4 @@ function onToggle() {
   user-select: text;
   -webkit-user-select: text;
 }
-
 </style>

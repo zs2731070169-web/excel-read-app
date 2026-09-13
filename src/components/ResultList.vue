@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { showToast } from 'vant'
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useWorkbook } from '../composables/useWorkbook'
-import { copyTextToClipboard, formatRowText } from '../services/clipboard'
+import { copyTextToClipboard, joinRowsText } from '../services/clipboard'
 import ResultRow from './ResultRow.vue'
 
 const { state, activeSheet, browseRows } = useWorkbook()
@@ -16,71 +16,26 @@ const displayRows = computed(() =>
 )
 const isBrowsing = computed(() => state.searchPhase === 'idle' && state.workbook !== null)
 
-/** 勾选集合（行索引；spec: 切门店/关键词变更时清空） */
-const selectedIndexes = ref(new Set<number>())
-
-watch(
-  () => [state.activeSheetName, state.keyword, state.searchPhase] as const,
-  () => {
-    selectedIndexes.value = new Set()
-  },
-)
-
-const allSelected = computed(
-  () => displayRows.value.length > 0 && selectedIndexes.value.size === displayRows.value.length,
-)
-
-function toggleRow(index: number) {
-  const next = new Set(selectedIndexes.value)
-  if (next.has(index)) {
-    next.delete(index)
-  } else {
-    next.add(index)
-  }
-  selectedIndexes.value = next
-}
-
-/** 全选/全不选（7.6 一体化操作栏） */
-function toggleSelectAll() {
-  selectedIndexes.value = allSelected.value
-    ? new Set()
-    : new Set(displayRows.value.map((_, i) => i))
-}
-
 /**
- * 主复制按钮（7.6 一体化）：勾选了就复制选中行，否则复制当前列表。
- * 同一入口两态，格式统一（TAB 分隔 + 行间换行）。
+ * 一键复制当前列表（result-copy spec）：搜索态复制当前结果，浏览态复制当前门店全部；
+ * 格式由 joinRowsText 保证（行内 TAB 分隔、行间换行）。
+ * 操作栏仅在列表有行时渲染，故此处无需空列表防御。
  */
-async function copyMainAction(): Promise<void> {
-  const rows = allSelectedOrSelected()
-  if (rows.length === 0) return
-  const text = rows.map(formatRowText).join('\n')
+async function copyCurrentList(): Promise<void> {
+  const rows = displayRows.value
   try {
-    await copyTextToClipboard(text)
+    await copyTextToClipboard(joinRowsText(rows))
     showToast(`已复制 ${rows.length} 条`)
-    selectedIndexes.value = new Set()
   } catch {
     showToast('复制失败，请长按文字手动复制')
   }
-}
-
-/** 当前应复制的行集合：仅勾选行（未勾选时返回空数组，按钮禁用不触发调用） */
-function allSelectedOrSelected() {
-  if (selectedIndexes.value.size > 0) {
-    return [...selectedIndexes.value]
-      .sort((a, b) => a - b)
-      .map((i) => displayRows.value[i])
-      .filter(Boolean)
-  }
-  return []
 }
 </script>
 
 <template>
   <section class="result-area">
-    <!-- 表头列名固定（order-search spec） -->
+    <!-- 表头列名固定（order-search spec；勾选列已随勾选复制移除） -->
     <div v-if="displayRows.length > 0" class="col-header">
-      <span class="c-check-h"></span>
       <span class="c-name">商品名称</span>
       <span class="c-barcode">条形码</span>
       <span class="c-shelf">货架号</span>
@@ -88,14 +43,7 @@ function allSelectedOrSelected() {
     </div>
 
     <div v-if="displayRows.length > 0" class="rows">
-      <ResultRow
-        v-for="(row, i) in displayRows"
-        :key="i"
-        :row="row"
-        :index="i"
-        :selected="selectedIndexes.has(i)"
-        @toggle="toggleRow"
-      />
+      <ResultRow v-for="(row, i) in displayRows" :key="i" :row="row" />
       <div class="result-count">
         {{ isBrowsing ? `全部 ${displayRows.length} 条` : `共 ${displayRows.length} 条` }}
       </div>
@@ -116,7 +64,7 @@ function allSelectedOrSelected() {
       </template>
       <template v-else>
         <p>本门店暂无记录</p>
-        <p class="hint">可切换其他门店或返回文件库检查文件</p>
+        <p class="hint">可切换其他门店检查数据</p>
       </template>
     </div>
 
@@ -126,25 +74,16 @@ function allSelectedOrSelected() {
       <p class="hint">点击「搜索」查看「{{ state.keyword }}」的结果</p>
     </div>
 
-    <!-- 一体化底部操作栏（7.6）：全选 + 主复制按钮（两态切换） -->
+    <!-- 底部操作栏（result-copy spec）：一键复制当前列表，按钮恒可用 -->
     <div v-if="displayRows.length > 0" class="action-bar">
-      <van-checkbox
-        :model-value="allSelected"
-        checked-color="#1989fa"
-        class="select-all"
-        @update:model-value="toggleSelectAll"
-      >
-        全选
-      </van-checkbox>
       <van-button
         type="primary"
         size="small"
         round
         class="copy-main-btn"
-        :disabled="selectedIndexes.size === 0"
-        @click="copyMainAction"
+        @click="copyCurrentList"
       >
-        {{ selectedIndexes.size > 0 ? `复制选中（${selectedIndexes.size}）` : '请先勾选' }}
+        复制 {{ displayRows.length }} 条
       </van-button>
     </div>
   </section>
@@ -171,11 +110,11 @@ function allSelectedOrSelected() {
   z-index: 1;
 }
 
-.c-check-h { width: 22px; flex-shrink: 0; }
-.c-name { width: 28%; }
-.c-barcode { width: 27%; }
-.c-shelf { width: 14%; }
-.c-price { width: 22%; text-align: left; }
+/* 四列宽度与 ResultRow 行内一致（勾选列移除后重分配：32/29/15/24） */
+.c-name { width: 32%; }
+.c-barcode { width: 29%; }
+.c-shelf { width: 15%; }
+.c-price { width: 24%; text-align: left; }
 
 .placeholder {
   padding: 48px 24px;
@@ -189,14 +128,6 @@ function allSelectedOrSelected() {
   color: #969799;
 }
 
-.list-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 0 4px;
-}
-
 .result-count {
   padding: 10px;
   text-align: center;
@@ -204,7 +135,7 @@ function allSelectedOrSelected() {
   color: #c8c9cc;
 }
 
-/* 一体化底部操作栏（7.6）：固定于结果区底，不随列表滚动。
+/* 底部操作栏：固定于结果区底，不随列表滚动（勾选复制移除后仅剩主复制按钮）。
    栏贴底不变，仅加大底内边距把内容抬高手势条（真机反馈：太贴底） */
 .action-bar {
   position: fixed;
@@ -213,16 +144,11 @@ function allSelectedOrSelected() {
   bottom: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 10px 16px calc(20px + var(--safe-bottom));
   background: #fff;
   border-top: 1px solid #ebedf0;
   z-index: 5;
-}
-
-.select-all {
-  user-select: none;
-  -webkit-user-select: none;
 }
 
 .copy-main-btn {
