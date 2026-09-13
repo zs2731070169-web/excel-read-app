@@ -22,5 +22,5 @@
 
 ## 5. 回归与收尾
 
-- [ ] 5.1 全量回归：`pnpm test` 全绿 + `pnpm build`（vue-tsc + vite）零错误，确认无未接线代码（死代码、未调用导出、过时注释）——结合代码审查清单逐项过
-- [ ] 5.2 对照 delta specs 逐场景核验（excel-import 六场景 / file-library 移除 / order-search 省略场景 / result-copy 一键复制四场景 / sheet-switch 三场景 / app-packaging 三场景），记录核验结果后执行两阶段代码审查并清理问题
+- [x] 5.1 全量回归：`pnpm test` 全绿 + `pnpm build`（vue-tsc + vite）零错误，确认无未接线代码（死代码、未调用导出、过时注释）——结合代码审查清单逐项过
+- [x] 5.2 对照 delta specs 逐场景核验（excel-import 六场景 / file-library 移除 / order-search 省略场景 / result-copy 一键复制四场景 / sheet-switch 三场景 / app-packaging 三场景），记录核验结果后执行两阶段代码审查并清理问题（多智能体四维度审查 + 双票对抗验证，确认项已全部修复并回归）

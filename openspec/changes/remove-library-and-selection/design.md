@@ -21,12 +21,12 @@
 
 ### D1 视图状态机：`'library'` → `'empty'`
 
-`LibraryView` 改为 `'empty' | 'workbook'`。`restoreLibrary()` 重命名为语义准确的启动恢复：`listFiles()` 取第一条（现有排序 `firstImportedAt` 倒序 = 最近导入）直接 `openFile(id)`；无文件则 `view = 'empty'`。`state.files` 数组从全局状态移除——文件库页删除后无消费者，恢复逻辑内部局部变量即可。
-*备选*：保留 `files` 以备未来文件切换器——违反最小闭环，删。
+`LibraryView` 改为 `'empty' | 'workbook'`。`restoreLibrary()` 重命名为语义准确的启动恢复：`listFiles()` 返回后按 `importedAt` 倒序取最新一条直接 `openFile(id)`（审查修正：不能直接取首条——`listFiles` 固定按 `firstImportedAt` 排序，而覆盖重导保留旧 `firstImportedAt`，会导致「先导 A → 导 B → 重导 A」后重启错误落在 B，违背 spec「最近导入」语义）；单条记录读取异常时降级 `empty` 空态并保证 `restored` 置位（防永久白屏）。无文件则 `view = 'empty'`。`state.files` 数组与 `state.activeFileId` 从全局状态移除——前者文件库页删除后无消费者，后者在 `deleteLibraryFile` 删除后沦为只写状态（审查确认），恢复逻辑内部局部变量即可。
+*备选*：保留 `files`/`activeFileId` 以备未来文件切换器——违反最小闭环，删。
 
 ### D2 导入链路收敛到 `useLibrary.startImport()`
 
-`FileLibrary.onImport` 的逻辑（防重复、选取、错误 toast）整体迁入 `useLibrary` 新导出 `startImport(): Promise<void>`，组件只剩按钮绑定。`onParsed` 完成入库后直接 `await openFile(id)`（含覆盖重导场景：同名记录覆盖后重新注入会话，数据即时刷新）。TopBar 与空态页两个按钮共用该入口，loading 统一绑 `state.importPhase === 'parsing'`，错误提示维持 van-notify / toast（在 startImport 内 showToast，空态页补 notify 展示）。
+`FileLibrary.onImport` 的逻辑（防重复、选取、错误 toast）整体迁入 `useLibrary` 新导出 `startImport(): Promise<void>`，组件只剩按钮绑定；选取期间用模块级 `picking` 标志防重复唤起（`importPhase` 只覆盖解析阶段）。`onParsed` 完成入库后直接 `await openFile(id)`（含覆盖重导场景：同名记录覆盖后重新注入会话，数据即时刷新），随后 `showToast('已导入 N 个工作表')` 补 spec 要求的成功反馈。TopBar 与空态页两个按钮共用该入口，loading 统一绑 `state.importPhase === 'parsing'`。错误双通道：选取/预校验异常在 startImport 内 toast；Worker 解析错误异步置 `importPhase='error'`，由 App.vue 全局 `van-notify` 展示——**必须绑 `:show`**（Vant Notify 的 `show` 默认 false，仅 `v-if` 不渲染节点，审查实测实证；此写法系从 FileLibrary 迁移的潜伏 bug，随本变更修正），`importPhase` 在下次导入开始时自然复位。
 *备选*：在两个组件里各写一份 onImport——重复且防重状态不同步，弃。
 
 ### D3 删除文件库相关代码与导出
