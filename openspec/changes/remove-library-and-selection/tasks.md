@@ -1,7 +1,7 @@
 ## 1. 视图状态机与导入链路（useLibrary）
 
-- [ ] 1.1 重写 `useLibrary.test.ts` 视图流转用例（先红后绿）：启动恢复直达最近导入文件（view=workbook、activeFileId=最新记录）、无文件启动落空态（view=empty）、`startImport` 导出存在且解析期间防重复触发；删除 closeWorkbook / deleteLibraryFile / 停留文件库相关旧用例，运行 `pnpm test` 确认新用例失败
-- [ ] 1.2 实现 `useLibrary.ts`：`LibraryView` 改 `'empty' | 'workbook'`、移除 `state.files`、恢复逻辑取 `listFiles()` 首条直接 `openFile`、新增 `startImport()`（迁移 FileLibrary.onImport 的防重/选取/错误提示）、`onParsed` 入库后直接 `openFile(id)`、删除 `closeWorkbook` / `deleteLibraryFile` 导出，运行 `pnpm test` 确认 1.1 用例全绿
+- [x] 1.1 重写 `useLibrary.test.ts` 视图流转用例（先红后绿）：启动恢复直达最近导入文件（view=workbook、activeFileId=最新记录）、无文件启动落空态（view=empty）、`startImport` 导出存在且解析期间防重复触发；删除 closeWorkbook / deleteLibraryFile / 停留文件库相关旧用例，运行 `pnpm test` 确认新用例失败
+- [x] 1.2 实现 `useLibrary.ts`：`LibraryView` 改 `'empty' | 'workbook'`、移除 `state.files`、恢复逻辑取 `listFiles()` 首条直接 `openFile`、新增 `startImport()`（迁移 FileLibrary.onImport 的防重/选取/错误提示）、`onParsed` 入库后直接 `openFile(id)`、删除 `closeWorkbook` / `deleteLibraryFile` 导出，运行 `pnpm test` 确认 1.1 用例全绿
 
 ## 2. 页面结构重组（App / TopBar / 空态 / 返回键）
 

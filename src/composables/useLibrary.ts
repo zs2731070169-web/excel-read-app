@@ -1,45 +1,44 @@
+import { showToast } from 'vant'
 import { reactive, readonly } from 'vue'
 import type { WorkerMessage } from '../services/excelWorker'
+import { pickExcelFile } from '../services/excelPicker'
 import {
-  deleteFile,
   fileIdentity,
   getFile,
   listFiles,
   putFile,
-  type LibraryFile,
 } from '../services/persistence'
 import type { WorkbookData } from '../services/types'
 import { openWorkbookSession, resetWorkbookSession } from './useWorkbook'
 
 /**
  * 文件库全局状态（design.md D1：useLibrary 全局层 + useWorkbook 会话层）。
- * view 两态：library（文件库首页）/ workbook（某文件的工作簿页）。
+ * view 两态：empty（无文件导入引导空态）/ workbook（数据列表页）。
+ * 文件库页已移除（remove-library-and-selection）：导入与冷启动均直达工作簿页。
  */
-export type LibraryView = 'library' | 'workbook'
+export type LibraryView = 'empty' | 'workbook'
 export type ImportPhase = 'idle' | 'parsing' | 'error'
 
 interface LibraryState {
   view: LibraryView
-  files: LibraryFile[]
   importPhase: ImportPhase
   importError: string | null
   /** 当前打开的文件 id（view=workbook 时有值） */
   activeFileId: string | null
-  /** 启动恢复完成（避免首帧空列表闪烁） */
+  /** 启动恢复完成（避免首帧空态闪烁） */
   restored: boolean
 }
 
 /** 可变源状态（测试直接断言用）；组件层用 useLibrary() 返回的 readonly 视图 */
 export const state = reactive<LibraryState>({
-  view: 'library',
-  files: [],
+  view: 'empty',
   importPhase: 'idle',
   importError: null,
   activeFileId: null,
   restored: false,
 })
 
-/** Worker 引用与请求代际（清空/重导时使旧响应失效） */
+/** Worker 引用与请求代际（重导时使旧响应失效） */
 let worker: Worker | null = null
 let requestGeneration = 0
 /** 当前请求的文件字节数（onParsed 计算 id 用——fileIdentity 依赖真实大小） */
@@ -70,7 +69,10 @@ function getWorker(): Worker {
   return worker
 }
 
-/** 解析完成：入库（同名覆盖），停留文件库页（spec: 导入不自动进入工作簿） */
+/**
+ * 解析完成：入库（同名覆盖）→ 直达该文件的工作簿页
+ * （excel-import spec：导入成功 MUST NOT 停留在中间页面）。
+ */
 async function onParsed(workbook: WorkbookData, fileSize: number): Promise<void> {
   const id = fileIdentity(workbook.fileName, fileSize)
   const existing = await getFile(id)
@@ -78,7 +80,7 @@ async function onParsed(workbook: WorkbookData, fileSize: number): Promise<void>
   await putFile({
     id,
     fileName: workbook.fileName,
-    // 覆盖保留首次导入时间（列表位置不动），新文件用当前时间
+    // 覆盖保留首次导入时间（“最近导入”排序键不动，重导不改变直达目标），新文件用当前时间
     firstImportedAt: existing?.firstImportedAt ?? now,
     importedAt: now,
     // 覆盖保留上次门店记忆
@@ -87,16 +89,11 @@ async function onParsed(workbook: WorkbookData, fileSize: number): Promise<void>
   })
   state.importPhase = 'idle'
   state.importError = null
-  await refreshFiles()
+  await openFile(id)
 }
 
-/** 刷新文件列表（导入/删除后调用） */
-async function refreshFiles(): Promise<void> {
-  state.files = await listFiles()
-}
-
-/** 导入新文件（来自 excelPicker 的选取结果） */
-export async function importFile(fileName: string, arrayBuffer: ArrayBuffer): Promise<void> {
+/** 导入新文件（startImport 调用：来自 excelPicker 的选取结果） */
+async function importFile(fileName: string, arrayBuffer: ArrayBuffer): Promise<void> {
   state.importPhase = 'parsing'
   state.importError = null
   requestGeneration += 1
@@ -105,16 +102,45 @@ export async function importFile(fileName: string, arrayBuffer: ArrayBuffer): Pr
   getWorker().postMessage({ id, arrayBuffer, fileName }, [arrayBuffer])
 }
 
-/** 启动恢复：读文件库，落在文件库页（spec: 重启恢复到文件库） */
+/** 文件选择器唤起中标志（importPhase 只覆盖解析阶段，选取期间靠它防重复唤起） */
+let picking = false
+
+/**
+ * 统一导入入口（顶栏导入按钮与无文件空态共用，design D2）：
+ * 选取 → Worker 解析 → 入库 → 直达工作簿页；错误统一 toast。
+ */
+export async function startImport(): Promise<void> {
+  if (picking || state.importPhase === 'parsing') return // 选取/解析期间不可重复导入
+  picking = true
+  try {
+    const picked = await pickExcelFile()
+    if (!picked) return // 取消
+    await importFile(picked.fileName, picked.arrayBuffer)
+  } catch (err) {
+    showToast(err instanceof Error ? err.message : '导入失败')
+  } finally {
+    picking = false
+  }
+}
+
+/**
+ * 启动恢复：直接进入最近导入文件的工作簿页（excel-import spec），
+ * 本地无任何文件时落在导入引导空态。
+ */
 export async function restoreLibrary(): Promise<void> {
-  await refreshFiles()
-  state.view = 'library'
-  state.activeFileId = null
+  const files = await listFiles() // firstImportedAt 倒序，首条即最近导入
+  const latest = files[0]
+  if (latest) {
+    await openFile(latest.id)
+  } else {
+    state.view = 'empty'
+    state.activeFileId = null
+  }
   state.restored = true
 }
 
-/** 进入某文件的工作簿页 */
-export async function openFile(id: string): Promise<void> {
+/** 进入某文件的工作簿页（启动恢复与导入直达两个内部入口调用） */
+async function openFile(id: string): Promise<void> {
   const record = await getFile(id)
   if (!record) return
   state.activeFileId = id
@@ -145,27 +171,9 @@ async function updateSheetMemory(id: string, sheetName: string | null): Promise<
   }
 }
 
-/** 返回文件库页 */
-export function closeWorkbook(): void {
-  state.view = 'library'
-  state.activeFileId = null
-  resetWorkbookSession()
-}
-
-/** 删除文件；若删的是当前打开的，先回文件库 */
-export async function deleteLibraryFile(id: string): Promise<void> {
-  if (state.activeFileId === id) closeWorkbook()
-  await deleteFile(id)
-  await refreshFiles()
-}
-
 export function useLibrary() {
   return {
     state: readonly(state),
-    importFile,
-    restoreLibrary,
-    openFile,
-    closeWorkbook,
-    deleteLibraryFile,
+    startImport,
   }
 }

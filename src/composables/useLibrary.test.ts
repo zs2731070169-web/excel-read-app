@@ -1,18 +1,18 @@
 import 'fake-indexeddb/auto'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import * as XLSX from 'xlsx'
 import { parseWorkbook } from '../services/excelParser'
-import { clearFiles } from '../services/persistence'
-import { state as workbookState, switchSheet } from './useWorkbook'
-import {
-  closeWorkbook,
-  deleteLibraryFile,
-  importFile,
-  openFile,
-  restoreLibrary,
-  state,
-} from './useLibrary'
+import { clearFiles, fileIdentity, getFile, putFile } from '../services/persistence'
+import { resetWorkbookSession, state as workbookState, switchSheet } from './useWorkbook'
+import { restoreLibrary, startImport, state } from './useLibrary'
 
+// vant / 原生选择器在 node 链路不可用 —— mock 后只验证状态流转（沿用 ResultRow.test 的做法）
+vi.mock('vant', () => ({ showToast: vi.fn() }))
+vi.mock('../services/excelPicker', () => ({ pickExcelFile: vi.fn() }))
+import { showToast } from 'vant'
+import { pickExcelFile } from '../services/excelPicker'
+
+/** 构造双门店工作簿字节（沿河店 / 江店1） */
 function makeWorkbookBytes(): ArrayBuffer {
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(
@@ -35,115 +35,87 @@ function makeWorkbookBytes(): ArrayBuffer {
 }
 
 /**
- * useLibrary.importFile 内部走 Worker（node 环境不可用）——
- * 等价路径测试：直接调用底层 persistence 组合（与 onParsed 相同语义），
- * 状态流转经 openFile/closeWorkbook/deleteLibraryFile 真实执行。
- * Worker 解析本身已在 excelParser.test 覆盖。
+ * 直接入库一条文件记录（node 等价路径，绕过 Worker——importFile 的 Worker
+ * 解析链路在 node 不可用，done→直达工作簿分支由真机冒烟覆盖）。
+ * firstImportedAt 显式指定，保证「最近导入」排序可断言。
  */
-async function importDirect(fileName: string) {
+async function seedFile(
+  fileName: string,
+  firstImportedAt: number,
+  lastSheetName: string | null = null,
+): Promise<string> {
   const bytes = makeWorkbookBytes()
-  const { fileIdentity, getFile, putFile } = await import('../services/persistence')
-  const id = fileIdentity(fileName, bytes.byteLength)
-  const existing = await getFile(id)
-  const now = Date.now()
   const workbook = parseWorkbook(bytes, fileName)
-  await putFile({
-    id,
-    fileName,
-    firstImportedAt: existing?.firstImportedAt ?? now,
-    importedAt: now,
-    lastSheetName: existing?.lastSheetName ?? null,
-    workbook,
-  })
+  const id = fileIdentity(fileName, bytes.byteLength)
+  await putFile({ id, fileName, firstImportedAt, importedAt: firstImportedAt, lastSheetName, workbook })
   return id
 }
 
 beforeEach(async () => {
+  vi.clearAllMocks()
   await clearFiles()
-  closeWorkbook()
-  await restoreLibrary()
+  resetWorkbookSession()
+  state.view = 'empty'
+  state.activeFileId = null
+  state.importPhase = 'idle'
+  state.importError = null
+  state.restored = false
 })
 
-describe('文件库状态流转 (3.1/3.3)', () => {
-  it('启动恢复 → 文件库页 + 列表', async () => {
-    await importDirect('订单A.xlsx')
+describe('启动恢复（直达最近导入文件）', () => {
+  it('有文件 → 直接进入最近导入文件的工作簿页', async () => {
+    await seedFile('订单旧.xlsx', 1000)
+    const latestId = await seedFile('订单新.xlsx', 2000)
     await restoreLibrary()
-    expect(state.view).toBe('library')
-    expect(state.files.map((f) => f.fileName)).toEqual(['订单A.xlsx'])
+    expect(state.view).toBe('workbook')
+    expect(state.activeFileId).toBe(latestId)
+    expect(workbookState.activeSheetName).toBe('沿河店') // 无记忆选第一个门店
     expect(state.restored).toBe(true)
   })
 
-  it('打开文件 → 工作簿会话 + 记忆恢复', async () => {
-    const id = await importDirect('订单A.xlsx')
-    // 写入门店记忆
-    const { getFile, putFile } = await import('../services/persistence')
-    const rec = await getFile(id)
-    rec!.lastSheetName = '江店1'
-    await putFile(rec!)
-
-    await openFile(id)
-    expect(state.view).toBe('workbook')
-    expect(state.activeFileId).toBe(id)
-    expect(workbookState.activeSheetName).toBe('江店1') // 上次门店恢复
+  it('无文件 → 落在导入引导空态', async () => {
+    await restoreLibrary()
+    expect(state.view).toBe('empty')
+    expect(state.activeFileId).toBeNull()
+    expect(state.restored).toBe(true)
   })
 
-  it('closeWorkbook → 回文件库，会话清空', async () => {
-    const id = await importDirect('订单A.xlsx')
-    await openFile(id)
-    closeWorkbook()
-    expect(state.view).toBe('library')
-    expect(workbookState.workbook).toBeNull()
+  it('恢复最近文件的上次门店记忆', async () => {
+    await seedFile('订单.xlsx', 1000, '江店1')
+    await restoreLibrary()
+    expect(workbookState.activeSheetName).toBe('江店1')
   })
 
-  it('切换门店持久化记忆（onSheetChange 回调链路）', async () => {
-    const id = await importDirect('订单A.xlsx')
-    await openFile(id)
+  it('直达会话内切门店 → 持久化记忆（onSheetChange 回调链路）', async () => {
+    const id = await seedFile('订单.xlsx', 1000)
+    await restoreLibrary()
     switchSheet('江店1')
     // 回调异步写库，等待微任务队列清空
-    await new Promise((r) => setTimeout(r, 20))
-    const { getFile } = await import('../services/persistence')
+    await new Promise((resolve) => setTimeout(resolve, 20))
     expect((await getFile(id))?.lastSheetName).toBe('江店1')
   })
-
-  it('删除当前打开的文件 → 自动回文件库', async () => {
-    const idA = await importDirect('订单A.xlsx')
-    const idB = await importDirect('订单B.xlsx')
-    await openFile(idA)
-    await deleteLibraryFile(idA)
-    expect(state.view).toBe('library')
-    expect(state.files.map((f) => f.fileName)).toEqual(['订单B.xlsx'])
-    // 再删非打开文件不影响视图
-    await openFile(idB)
-    await deleteLibraryFile(idA) // 已删，幂等
-    expect(state.view).toBe('workbook')
-  })
-
-  it('删除最后一个文件 → 空库', async () => {
-    const id = await importDirect('订单A.xlsx')
-    await deleteLibraryFile(id)
-    expect(state.files).toEqual([])
-  })
 })
 
-describe('importFile 状态机（Worker mock）', () => {
-  it('解析中 → done 状态与错误分支', async () => {
-    // Worker 不可用环境下仅验证初始态与 API 存在性；真机覆盖 done/error 分支
+describe('startImport（统一导入入口）', () => {
+  it('取消选取 → 无状态变化', async () => {
+    vi.mocked(pickExcelFile).mockResolvedValue(null)
+    await startImport()
     expect(state.importPhase).toBe('idle')
-    expect(typeof importFile).toBe('function')
+    expect(state.view).toBe('empty')
+    expect(showToast).not.toHaveBeenCalled()
   })
-})
 
-describe('导入后停留文件库 (stay-in-library-after-import spec)', () => {
-  it('导入解析完成不自动进入工作簿', async () => {
-    // importFile 走 Worker（node 不可用）——等价断言：openFile 是唯一入口且
-    // onParsed 不再调用它。用 spy 验证 openFile 未被内部调用不可行（模块内引用），
-    // 改为行为断言：restoreLibrary 后 view 恒为 library，onParsed 无 openFile 副作用
-    await restoreLibrary()
-    expect(state.view).toBe('library')
-    expect(state.activeFileId).toBeNull()
-    // 进入工作簿必须显式 openFile
-    const id = await importDirect('订单停留.xlsx')
-    await openFile(id)
-    expect(state.view).toBe('workbook')
+  it('解析期间防重复触发（不重复唤起选择器）', async () => {
+    state.importPhase = 'parsing' // 等价 Worker 解析中（node 无法走真实 Worker）
+    await startImport()
+    expect(pickExcelFile).not.toHaveBeenCalled()
+    expect(state.importPhase).toBe('parsing')
+  })
+
+  it('选取异常 → toast 错误且导入状态复位', async () => {
+    vi.mocked(pickExcelFile).mockRejectedValue(new Error('所选文件不是 Excel 文件（仅支持 .xlsx / .xls）'))
+    await startImport()
+    expect(showToast).toHaveBeenCalledWith('所选文件不是 Excel 文件（仅支持 .xlsx / .xls）')
+    expect(state.importPhase).toBe('idle')
   })
 })
