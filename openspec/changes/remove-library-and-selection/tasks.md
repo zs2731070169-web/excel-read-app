@@ -5,7 +5,7 @@
 
 ## 2. 页面结构重组（App / TopBar / 空态 / 返回键）
 
-- [ ] 2.1 删除 `FileLibrary.vue`、`FileCard.vue`，`App.vue` 重构为「empty 空态导入引导（内联）+ workbook（TopBar/SearchBar/ResultList）」两分支，空态含导入按钮（绑 startImport、解析中 loading）；`TopBar.vue` 移除返回箭头与 closeWorkbook 引用，右侧新增「Excel 导入」按钮（绑 startImport、loading 绑 importPhase）；`main.ts` 返回键监听收敛为直接 `CapApp.exitApp()`；全局搜索确认无 FileLibrary/FileCard/closeWorkbook 残留引用（`pnpm build` 的 vue-tsc 通过即验证）
+- [x] 2.1 删除 `FileLibrary.vue`、`FileCard.vue`，`App.vue` 重构为「empty 空态导入引导（内联）+ workbook（TopBar/SearchBar/ResultList）」两分支，空态含导入按钮（绑 startImport、解析中 loading）；`TopBar.vue` 移除返回箭头与 closeWorkbook 引用，右侧新增「Excel 导入」按钮（绑 startImport、loading 绑 importPhase）；`main.ts` 返回键监听收敛为直接 `CapApp.exitApp()`；全局搜索确认无 FileLibrary/FileCard/closeWorkbook 残留引用（`pnpm build` 的 vue-tsc 通过即验证）
 - [ ] 2.2 真机/浏览器冒烟（pnpm dev）：无文件启动见空态引导 → 导入文件直达数据列表页 → 再次导入另一文件直接切换 → 取消选取无变化 → 解析失败有提示且页面可用
 
 ## 3. 一键复制当前列表（ResultList / ResultRow）

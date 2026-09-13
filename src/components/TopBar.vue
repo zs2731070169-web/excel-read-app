@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useLibrary } from '../composables/useLibrary'
 import { useWorkbook } from '../composables/useWorkbook'
 
-const { closeWorkbook } = useLibrary()
+const { state: libraryState, startImport } = useLibrary()
 const { state, sheetNames, switchSheet } = useWorkbook()
 
 /** 下拉框选项：Sheet 名 + 无效标记（格式不符的 Sheet 可见但提示） */
@@ -21,15 +21,12 @@ function onSelectSheet(name: string) {
 
 <template>
   <header class="top-bar">
-    <!-- 左：返回文件库 -->
-    <van-icon name="arrow-left" size="20" class="back-btn" @click="closeWorkbook" />
-
     <!-- 当前文件名（用户反馈：无法确认在哪个文件里） -->
     <div class="file-name" :title="state.workbook?.fileName">
       {{ state.workbook?.fileName }}
     </div>
 
-    <!-- 中左：工作表下拉（仅工作簿页渲染此组件） -->
+    <!-- 门店（工作表）下拉：中部占满剩余宽度 -->
     <div class="picker-wrap">
       <van-dropdown-menu>
         <van-dropdown-item
@@ -39,6 +36,18 @@ function onSelectSheet(name: string) {
         />
       </van-dropdown-menu>
     </div>
+
+    <!-- Excel 导入（文件库页移除后导入入口唯一化于顶栏；解析中 loading 防重复） -->
+    <van-button
+      type="primary"
+      size="small"
+      class="import-btn"
+      :loading="libraryState.importPhase === 'parsing'"
+      loading-text="解析中"
+      @click="startImport"
+    >
+      {{ libraryState.importPhase === 'parsing' ? '' : 'Excel导入' }}
+    </van-button>
   </header>
 </template>
 
@@ -54,15 +63,9 @@ function onSelectSheet(name: string) {
   border-bottom: 1px solid #ebedf0;
 }
 
-.back-btn {
-  padding: 6px;
-  color: #323233;
-  flex-shrink: 0;
-}
-
 .file-name {
   flex-shrink: 0;
-  max-width: 34vw;
+  max-width: 30vw;
   font-size: 13px;
   color: #969799;
   white-space: nowrap;
@@ -79,5 +82,22 @@ function onSelectSheet(name: string) {
   box-shadow: none;
   height: 40px;
   background: transparent;
+}
+
+/* 门店下拉字号放大（sheet-switch spec：当前项与选项清晰可读；真机反馈原字号太小）。
+   依赖 Vant 内部类名，升级 vant 需回归真机确认 */
+.picker-wrap :deep(.van-dropdown-menu__title) {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.picker-wrap :deep(.van-dropdown-item__option) {
+  font-size: 16px;
+}
+
+/* 导入按钮宽度固定，防 loading 文案切换时顶栏抖动 */
+.import-btn {
+  flex-shrink: 0;
+  min-width: 84px;
 }
 </style>

@@ -9,7 +9,7 @@ import {
   putFile,
 } from '../services/persistence'
 import type { WorkbookData } from '../services/types'
-import { openWorkbookSession, resetWorkbookSession } from './useWorkbook'
+import { openWorkbookSession } from './useWorkbook'
 
 /**
  * 文件库全局状态（design.md D1：useLibrary 全局层 + useWorkbook 会话层）。
