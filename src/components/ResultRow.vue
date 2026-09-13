@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { OrderRow } from '../services/types'
+import { TABLE_COLUMNS } from './tableColumns'
 
 defineProps<{
   row: OrderRow
@@ -13,27 +14,28 @@ defineProps<{
   两层坑（7.3 探针实证）：① 标签间空白文本被 Vue whitespace:'condense' 移除；
   ② 模板实体 &#9; 经实体解析渲染成普通空格。字符串表达式是运行时值，两者皆避。
   font-size:0 让 TAB 不占可见宽度（显示紧贴、复制带分隔）。
-  勾选复制已移除（remove-library-and-selection）：行为纯展示行；
-  精确格式复制走底部一键复制，长按自由复制保留为尽力而为。
+  列序列与表头同源渲染（TABLE_COLUMNS）：两侧子元素 / gap 结构逐一致是
+  列对齐的前提（2026-09-13 错位修复），几何（宽度/gap）在全局 table.css。
+  勾选复制与底部一键复制均已移除（remove-library-and-selection）：行为纯展示行，
+  复制仅剩长按自由选择（格式尽力而为）。
   商品名称超长单行省略（order-search spec）：text-overflow 只裁显示不裁 DOM 文本，
-  长按选择与一键复制仍取到完整名称。
+  长按选择仍取到完整名称。
 -->
 <template>
-  <div class="row">
-    <span class="c-name">{{ row.name }}</span><span class="sep">{{ '\t' }}</span><span
-      class="c-barcode"
-      >{{ row.barcode }}</span
-    ><span class="sep">{{ '\t' }}</span><span class="c-shelf">{{ row.shelf }}</span
-    ><span class="sep">{{ '\t' }}</span><span class="c-price">{{ row.price }}</span>
+  <div class="row table-line">
+    <template v-for="(column, columnIndex) in TABLE_COLUMNS" :key="column.key">
+      <span v-if="columnIndex > 0" class="sep">{{ '\t' }}</span>
+      <span :class="`c-${column.key}`">{{ row[column.key] }}</span>
+    </template>
   </div>
 </template>
 
 <style scoped>
 .row {
-  display: flex;
+  /* 水平几何（flex/gap/padding-inline/列宽）在全局 table.css .table-line，与表头共用 */
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   background: #fff;
   border-bottom: 1px solid #f2f3f5;
   font-size: 14px;
@@ -46,7 +48,6 @@ defineProps<{
 
 /* 商品名称：单行省略（超长截断不换行撑高），DOM 文本保留全名供复制 */
 .c-name {
-  width: 32%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -54,19 +55,17 @@ defineProps<{
 }
 
 .c-barcode {
-  width: 29%;
   word-break: break-all;
   font-family: 'SF Mono', Menlo, Consolas, monospace;
   font-size: 13px;
   color: #323233;
 }
 
-.c-shelf { width: 15%; color: #323233; }
-.c-price { width: 24%; color: #ee0a24; text-align: left; }
+.c-shelf { color: #323233; }
+.c-price { color: #ee0a24; }
 
-/* TAB 分隔符：存在于 DOM（长按复制带上），不占可见宽度 */
+/* TAB 分隔符选择能力（宽度置零在全局 table.css）：复制走长按，分隔符必须可选 */
 .sep {
-  font-size: 0;
   user-select: text;
   -webkit-user-select: text;
 }

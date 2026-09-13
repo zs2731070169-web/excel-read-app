@@ -13,8 +13,8 @@ const sample: OrderRow = {
 
 /**
  * 组件层渲染断言（design D6 教训：状态机绿 ≠ DOM 对）。
- * 勾选复制已移除（remove-library-and-selection）——守卫两件事：
- * ① TAB 分隔符真实存在于 DOM（长按自由复制与一键复制的分隔来源）；
+ * 勾选复制与底部一键复制均已移除（remove-library-and-selection）——守卫两件事：
+ * ① TAB 分隔符真实存在于 DOM（长按自由复制的分隔来源）；
  * ② 行内为纯展示结构，不再有复选框等交互元素。
  */
 describe('ResultRow 渲染（result-copy spec）', () => {

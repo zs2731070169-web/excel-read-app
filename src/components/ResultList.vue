@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useWorkbook } from '../composables/useWorkbook'
 import ResultRow from './ResultRow.vue'
+import { TABLE_COLUMNS } from './tableColumns'
 
 const { state, activeSheet, browseRows } = useWorkbook()
 
@@ -17,12 +18,14 @@ const isBrowsing = computed(() => state.searchPhase === 'idle' && state.workbook
 
 <template>
   <section class="result-area">
-    <!-- 表头列名固定（order-search spec；勾选列已随勾选复制移除） -->
-    <div v-if="displayRows.length > 0" class="col-header">
-      <span class="c-name">商品名称</span>
-      <span class="c-barcode">条形码</span>
-      <span class="c-shelf">货架号</span>
-      <span class="c-price">价格</span>
+    <!-- 表头列名固定（order-search spec；勾选列已随勾选复制移除）。
+         与 ResultRow 同源渲染（TABLE_COLUMNS + 零宽 sep 镜像）：两侧 flex 子元素 /
+         gap 结构必须逐一致，列名才能与数据列对齐（2026-09-13 错位修复，几何见 table.css） -->
+    <div v-if="displayRows.length > 0" class="col-header table-line">
+      <template v-for="(column, columnIndex) in TABLE_COLUMNS" :key="column.key">
+        <span v-if="columnIndex > 0" class="sep">{{ '\t' }}</span>
+        <span :class="`c-${column.key}`">{{ column.label }}</span>
+      </template>
     </div>
 
     <div v-if="displayRows.length > 0" class="rows">
@@ -71,20 +74,14 @@ const isBrowsing = computed(() => state.searchPhase === 'idle' && state.workbook
 .col-header {
   position: sticky;
   top: 0;
-  display: flex;
-  gap: 8px;
-  padding: 8px 12px;
+  /* 水平几何（flex/gap/padding-inline/列宽）在全局 table.css .table-line，与数据行共用 */
+  padding-top: 8px;
+  padding-bottom: 8px;
   background: #f7f8fa;
   font-size: 12px;
   color: #969799;
   z-index: 1;
 }
-
-/* 四列宽度与 ResultRow 行内一致（勾选列移除后重分配：32/29/15/24） */
-.c-name { width: 32%; }
-.c-barcode { width: 29%; }
-.c-shelf { width: 15%; }
-.c-price { width: 24%; text-align: left; }
 
 .placeholder {
   padding: 48px 24px;

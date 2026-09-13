@@ -1,0 +1,25 @@
+/*
+ * 结果表行骨架与列几何（表头 .col-header 与数据行 .row 共用的唯一事实源）：
+ * 对齐的前提是两侧 flex 参数与子元素结构完全一致——同 gap、同水平 padding、
+ * 同列宽序列、同 sep 占位（sep 参见 tableColumns.ts / ResultRow.vue 的复制语义注释）。
+ * 任一侧单独改动这里的任一数值都会重新引入列错位，禁止在组件内覆写。
+ */
+
+/* 行骨架：两容器仅垂直 padding / 配色不同（各自的 scoped 样式负责），水平几何全在此 */
+.table-line {
+  display: flex;
+  gap: 8px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* 四列宽度（勾选列移除后重分配：32/29/15/24） */
+.c-name { width: 32%; }
+.c-barcode { width: 29%; }
+.c-shelf { width: 15%; }
+.c-price { width: 24%; text-align: left; }
+
+/* TAB 分隔符：存在于 DOM（长按复制带上字段分隔），font-size:0 使其不占可见宽度 */
+.sep {
+  font-size: 0;
+}

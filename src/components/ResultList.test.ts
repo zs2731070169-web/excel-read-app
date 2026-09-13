@@ -76,3 +76,33 @@ describe('结果区纯展示（result-copy 修订：复制操作栏已移除）'
     expect(wrapper.findAll('.row')).toHaveLength(2)
   })
 })
+
+/**
+ * 表头列与数据列对齐（2026-09-13「价格 title 与数字列错位」修复的回归锁）：
+ * 两侧同为 flex 容器（gap 8px、列宽百分比求和 100%），任一侧子元素数 / gap 数
+ * 不同就会产生不同的溢出收缩与列距——历史上表头 4 子 / 数据行 7 子（3 个零宽
+ * TAB 分隔 sep）导致数据列逐列右移（条形码 +0.32 / 货架号 +1.36 / 价格 +5.76px）。
+ * DOM 结构逐一致是对齐的必要前提，在无真实布局引擎的测试环境里以此锁定。
+ */
+describe('表头列与数据列对齐（结构镜像）', () => {
+  /** 数据行期望子元素序列：4 列 span 与 3 个零宽 TAB 分隔 sep 交替（sep 不许丢——长按复制的分隔来源） */
+  const EXPECTED_CHILD_CLASSES = ['c-name', 'sep', 'c-barcode', 'sep', 'c-shelf', 'sep', 'c-price']
+
+  function childClassesOf(container: Element): string[] {
+    return Array.from(container.children).map((element) => element.className)
+  }
+
+  it('表头子元素结构与数据行逐一致', () => {
+    const wrapper = mountWithSession()
+    const rowClasses = childClassesOf(wrapper.find('.row').element)
+    const headerClasses = childClassesOf(wrapper.find('.col-header').element)
+    expect(rowClasses).toEqual(EXPECTED_CHILD_CLASSES)
+    expect(headerClasses).toEqual(rowClasses)
+  })
+
+  it('表头列名与顺序固定：商品名称/条形码/货架号/价格（order-search spec）', () => {
+    const wrapper = mountWithSession()
+    const headerText = wrapper.find('.col-header').element.textContent ?? ''
+    expect(headerText.split('\t')).toEqual(['商品名称', '条形码', '货架号', '价格'])
+  })
+})

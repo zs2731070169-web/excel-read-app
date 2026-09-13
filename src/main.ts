@@ -6,6 +6,8 @@ import { restoreLibrary } from './composables/useLibrary'
 // Vant 移动端基准样式（含 1px 边框、safe-area 处理）
 import 'vant/lib/index.css'
 import './styles/base.css'
+// 结果表行骨架与列几何（表头/数据行共用，列对齐的事实源）
+import './styles/table.css'
 
 // 启动恢复：直接进入最近导入文件的工作簿页（无文件落导入引导空态）
 void restoreLibrary()
