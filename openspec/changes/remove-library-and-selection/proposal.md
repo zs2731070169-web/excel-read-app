@@ -27,12 +27,12 @@
 - `file-library`: 能力整体移除（文件库首页、进入工作簿跳转、滑动删除、逐文件删除的 UI 层全部下线）
 - `order-search`: 搜索结果行的商品名称列超长时单行省略号截断（数据层仍完整，复制内容不受影响）；结果表头移除勾选列
 - `result-copy`: 「勾选复制」需求移除，替换为「一键复制当前列表」（底部操作栏仅保留复制按钮，始终可点，复制当前展示的全部行）；WebView 长按复制保留，其「精确格式」表述改指向一键复制
-- `sheet-switch`: 顶栏布局改变——移除返回入口，「Excel 导入」按钮出现在工作簿页顶栏右侧（原「MUST NOT 出现在工作簿页」约束反转）；下拉当前项与选项 SHALL 以放大字号展示
+- `sheet-switch`: 顶栏布局改变——移除返回入口，「Excel 导入」按钮出现在工作簿页顶栏右侧（原「MUST NOT 出现在工作簿页」约束反转）；下拉当前项与选项 SHALL 以放大字号展示；门店下拉置于顶栏左侧，MUST NOT 展示当前文件名
 - `app-packaging`: 返回键行为改变——工作簿页为导航根，键盘收起后返回键退出应用（原「工作簿页返回文件库」路径移除）
 
 ## Impact
 
-- **前端组件**：`src/App.vue`（视图分支重构 + 无文件空态）、`src/components/FileLibrary.vue` 与 `FileCard.vue`（删除）、`TopBar.vue`（去返回箭头 + 导入按钮迁移）、`SearchBar.vue`（按钮加宽）、`ResultList.vue`（去勾选体系 + 一键复制）、`ResultRow.vue`（去复选框 + 名称省略 + 列宽）
+- **前端组件**：`src/App.vue`（视图分支重构 + 无文件空态）、`src/components/FileLibrary.vue` 与 `FileCard.vue`（删除）、`TopBar.vue`（去返回箭头 + 去文件名、门店下拉居左 + 导入按钮迁右）、`SearchBar.vue`（按钮加宽）、`ResultList.vue`（去勾选体系 + 一键复制）、`ResultRow.vue`（去复选框 + 名称省略 + 列宽）
 - **状态层**：`src/composables/useLibrary.ts`（视图状态机 `'library'` → 无文件空态 / 工作簿两态、启动恢复直达、导入完成自动 openFile、closeWorkbook/deleteLibraryFile 导出移除）；`useWorkbook.ts` 会话逻辑不变
 - **入口**：`src/main.ts`（安卓返回键分派简化为退出应用）
 - **测试**：`useLibrary.test.ts`（视图流转场景重写）、`ResultRow.test.ts`（勾选断言移除）、`ResultList.test.ts`（复制用例移除、保留 displayRows 逻辑）、`clipboard.test.ts` 随服务删除

@@ -32,6 +32,7 @@
 ### D3 删除文件库相关代码与导出
 
 删除 `FileLibrary.vue`、`FileCard.vue`；`useLibrary` 移除导出 `closeWorkbook`、`deleteLibraryFile`（UI 无入口即死代码）。`TopBar` 移除返回箭头与 `closeWorkbook` 调用，右侧新增导入按钮。`App.vue` 空态分支内联实现（van-empty 风格引导文案 + 导入按钮），不新建组件——仅一个按钮，最小闭环。
+（修订记录 2：顶栏终版布局 = 左侧门店下拉 + 右侧导入按钮；左上角文件名展示按用户要求移除——该项原为早期「无法确认在哪个文件里」反馈所加，文件库移除后单文件直达场景下不再需要。）
 
 ### D4 结果区纯展示，复制仅剩长按
 
