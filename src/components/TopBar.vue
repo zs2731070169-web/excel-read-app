@@ -70,6 +70,17 @@ function onSelectSheet(name: string) {
   background: transparent;
 }
 
+/* 门店下拉标题左对齐（sheet-switch spec 修订 7：下拉居左上角）——
+   vant 菜单项默认 justify-content:center，单菜单项占满整栏时标题会落在屏幕中间 */
+.picker-wrap :deep(.van-dropdown-menu__item) {
+  justify-content: flex-start;
+}
+
+/* 标题去掉 vant 默认左内边距，与下方列表内容（12px）左缘对齐 */
+.picker-wrap :deep(.van-dropdown-menu__title) {
+  padding-left: 0;
+}
+
 /* 门店下拉字号放大（sheet-switch spec：当前项与选项清晰可读；真机反馈原字号太小）。
    依赖 Vant 内部类名，升级 vant 需回归真机确认 */
 .picker-wrap :deep(.van-dropdown-menu__title) {
