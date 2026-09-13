@@ -28,3 +28,6 @@ android/capacitor-cordova-android-plugins/build/
 # 签名密钥（不入库，交付客户保管）
 *.keystore
 keystore.properties
+
+# TypeScript 增量编译缓存（本机构建副产物，不入库）
+*.tsbuildinfo
