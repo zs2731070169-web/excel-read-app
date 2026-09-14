@@ -43,8 +43,8 @@ describe('列几何唯一事实源（table.css）', () => {
     const block = ruleBlockOf(tableCss, '.table-line')
     expect(block).toContain('display: flex')
     expect(block).toContain('gap: 8px')
-    expect(block).toContain('padding-left: 12px')
-    expect(block).toContain('padding-right: 12px')
+    expect(block).toContain('padding-left: 16px')
+    expect(block).toContain('padding-right: 16px')
   })
 
   it('.sep 宽度置零（TAB 分隔参与布局但不占可见宽度）', () => {

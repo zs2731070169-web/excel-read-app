@@ -5,12 +5,13 @@
  * 任一侧单独改动这里的任一数值都会重新引入列错位，禁止在组件内覆写。
  */
 
-/* 行骨架：两容器仅垂直 padding / 配色不同（各自的 scoped 样式负责），水平几何全在此 */
+/* 行骨架：两容器仅垂直 padding / 配色不同（各自的 scoped 样式负责），水平几何全在此。
+   左右 16px（vant 标准留白）：2026-09-14 名称/价格贴屏幕边缘过近，12px 提至 16px */
 .table-line {
   display: flex;
   gap: 8px;
-  padding-left: 12px;
-  padding-right: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 /* 四列宽度（2026-09-14 调整：价格 24→16、名称 32→40——价格数字短且改右对齐，
