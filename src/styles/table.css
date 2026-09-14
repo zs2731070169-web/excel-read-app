@@ -13,11 +13,13 @@
   padding-right: 12px;
 }
 
-/* 四列宽度（勾选列移除后重分配：32/29/15/24） */
-.c-name { width: 32%; }
+/* 四列宽度（2026-09-14 调整：价格 24→16、名称 32→40——价格数字短且改右对齐，
+   收窄消除其右侧大片留白，让出的宽度给截断最严重的商品名称列） */
+.c-name { width: 40%; }
 .c-barcode { width: 29%; }
 .c-shelf { width: 15%; }
-.c-price { width: 24%; text-align: left; }
+/* 价格右对齐：数字贴行右缘，不留尾部空白（表头「价格」随之右对齐） */
+.c-price { width: 16%; text-align: right; }
 
 /* TAB 分隔符：存在于 DOM（长按复制带上字段分隔），font-size:0 使其不占可见宽度 */
 .sep {

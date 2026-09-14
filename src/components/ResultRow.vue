@@ -61,7 +61,8 @@ defineProps<{
   color: #323233;
 }
 
-.c-shelf { color: #323233; }
+/* 货架号主蓝（vant #1989fa）：现场找货时便于快速定位，与价格红形成视觉分工 */
+.c-shelf { color: #1989fa; }
 .c-price { color: #ee0a24; }
 
 /* TAB 分隔符选择能力（宽度置零在全局 table.css）：复制走长按，分隔符必须可选 */
